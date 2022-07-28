@@ -158,6 +158,9 @@ suite = {
             "sha1" : "fb71a14c57a6e6f494aaaa5a84773a3e35344b9b",
             "urls" : ["{urlbase}/hsdis-aarch64-linux-fcc9b70ac91c00db8a50b0d4345490a68e3743e1.tar.gz"],
           },
+          "riscv64" : {
+            "optional" : True,
+          }
         },
         "darwin" : {
           "amd64" : {
@@ -669,6 +672,27 @@ suite = {
       ],
       "javaCompliance" : "11+",
       "workingSets" : "Graal,HotSpot,AMD64",
+    },
+
+    "org.graalvm.compiler.hotspot.riscv64" : {
+      "subDir" : "src",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.compiler.core.riscv64",
+        "org.graalvm.compiler.hotspot",
+      ],
+      "requiresConcealed" : {
+        "jdk.internal.vm.ci" : [
+          "jdk.vm.ci.meta",
+          "jdk.vm.ci.code",
+        ],
+      },
+      "checkstyle" : "org.graalvm.compiler.graph",
+      "annotationProcessors" : [
+        "GRAAL_PROCESSOR"
+      ],
+      "javaCompliance" : "11+",
+      "workingSets" : "Graal,HotSpot,RISCV64",
     },
 
     "org.graalvm.compiler.hotspot.test" : {
@@ -1370,6 +1394,20 @@ suite = {
       "checkstyle" : "org.graalvm.compiler.graph",
       "javaCompliance" : "11+",
       "workingSets" : "Graal,AMD64,Test",
+    },
+
+    "org.graalvm.compiler.core.riscv64" : {
+      "subDir" : "src",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.compiler.core",
+      ],
+      "checkstyle" : "org.graalvm.compiler.graph",
+      "annotationProcessors" : [
+        "GRAAL_PROCESSOR",
+      ],
+      "javaCompliance" : "11+",
+      "workingSets" : "Graal,RISCV64",
     },
 
     "org.graalvm.compiler.runtime" : {
@@ -2091,8 +2129,10 @@ suite = {
         "org.graalvm.compiler.replacements.aarch64",
         "org.graalvm.compiler.core.amd64",
         "org.graalvm.compiler.replacements.amd64",
+        "org.graalvm.compiler.core.riscv64",
         "org.graalvm.compiler.hotspot.aarch64",
         "org.graalvm.compiler.hotspot.amd64",
+        "org.graalvm.compiler.hotspot.riscv64",
         "org.graalvm.compiler.hotspot",
         "org.graalvm.compiler.lir.aarch64",
         "org.graalvm.compiler.truffle.compiler.amd64",
@@ -2169,6 +2209,9 @@ suite = {
       "description" : "Disassembler support distribution for the GraalVM",
       "os_arch" : {
         "linux" : {
+          "riscv64" : {
+            "optional" : True,
+          },
           "<others>" : {
             "layout" : {
               "hsdis-<arch>.so" : "file:<path:HSDIS>/*",
