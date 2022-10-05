@@ -34,7 +34,6 @@ import com.oracle.svm.core.SubstrateOptions;
 import com.oracle.svm.core.deopt.DeoptimizationSupport;
 import com.oracle.svm.core.feature.AutomaticallyRegisteredFeature;
 import com.oracle.svm.core.feature.InternalFeature;
-import com.oracle.svm.core.graal.RuntimeCompilation;
 import com.oracle.svm.core.heap.StoredContinuation;
 import com.oracle.svm.core.heap.StoredContinuationAccess;
 import com.oracle.svm.core.util.UserError;
@@ -59,7 +58,7 @@ public class ContinuationsFeature implements InternalFeature {
                 RuntimeClassInitialization.initializeAtRunTime("jdk.internal.vm.Continuation");
             }
             // Fail if virtual threads are used and runtime compilation is enabled
-            supportLoom = haveLoom && !RuntimeCompilation.isEnabled() && !DeoptimizationSupport.enabled();
+            supportLoom = haveLoom && !DeoptimizationSupport.enabled();
         }
 
         if (supportLoom) {
@@ -68,7 +67,7 @@ public class ContinuationsFeature implements InternalFeature {
             ImageSingletons.add(LoomVirtualThreads.class, vt); // for simpler check in LoomSupport
         } else if (SubstrateOptions.SupportContinuations.getValue()) {
             if (JavaVersionUtil.JAVA_SPEC == 17) {
-                if (RuntimeCompilation.isEnabled() || DeoptimizationSupport.enabled()) {
+                if (DeoptimizationSupport.enabled()) {
                     throw UserError.abort("Virtual threads are enabled, but are currently not supported together with Truffle JIT compilation.");
                 }
                 ImageSingletons.add(VirtualThreads.class, new SubstrateVirtualThreads());
@@ -123,7 +122,7 @@ public class ContinuationsFeature implements InternalFeature {
 
     static void abortIfUnsupported() {
         if (!Continuation.isSupported()) {
-            if (RuntimeCompilation.isEnabled() || DeoptimizationSupport.enabled()) {
+            if (DeoptimizationSupport.enabled()) {
                 throw UserError.abort("Virtual threads are used in code, but are currently not supported together with Truffle JIT compilation.");
             }
             throw UserError.abort("Virtual threads are used in code, but are not currently available or active. Use JDK 19 with preview features enabled (--enable-preview).");
