@@ -40,15 +40,7 @@
  */
 package com.oracle.truffle.api.operation.test.bml;
 
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_ADD;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_CONST;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_JUMP;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_JUMP_FALSE;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_LD_LOC;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_LESS;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_MOD;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_RETURN;
-import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.OP_ST_LOC;
+import static com.oracle.truffle.api.operation.test.bml.ManualBytecodeNode.*;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
@@ -79,6 +71,8 @@ public class BenmarkSimple extends BaseBenchmark {
     private static final String NAME_MANUAL = "simple:manual";
     private static final String NAME_MANUAL_NO_BE = "simple:manual-no-be";
     private static final String NAME_MANUAL_UNSAFE = "simple:manual-unsafe";
+    private static final String NAME_MANUAL_UNSAFE_SUPERINSTRUCTION = "simple:manual-unsafe-superinstruction";
+    private static final String NAME_MANUAL_UNSAFE_WRAPPED = "simple:manual-unsafe-wrapped";
     private static final String NAME_AST = "simple:ast";
 
     private static final Source SOURCE_TEST_LOOP = Source.create("bm", NAME_TEST_LOOP);
@@ -87,6 +81,8 @@ public class BenmarkSimple extends BaseBenchmark {
     private static final Source SOURCE_MANUAL = Source.create("bm", NAME_MANUAL);
     private static final Source SOURCE_MANUAL_NO_BE = Source.create("bm", NAME_MANUAL_NO_BE);
     private static final Source SOURCE_MANUAL_UNSAFE = Source.create("bm", NAME_MANUAL_UNSAFE);
+    private static final Source SOURCE_MANUAL_UNSAFE_SUPERINSTRUCTION = Source.create("bm", NAME_MANUAL_UNSAFE_SUPERINSTRUCTION);
+    private static final Source SOURCE_MANUAL_UNSAFE_WRAPPED = Source.create("bm", NAME_MANUAL_UNSAFE_WRAPPED);
     private static final Source SOURCE_AST = Source.create("bm", NAME_AST);
 
     private static final int LOC_I = 4;
@@ -129,7 +125,7 @@ public class BenmarkSimple extends BaseBenchmark {
                     /* 39 */ OP_LESS,
                     /* 40 */ OP_JUMP_FALSE, 49, // if_else
 
-                    // temp = 0
+                    // temp = 1
                     /* 42 */ OP_CONST, 0, 1,
                     /* 45 */ OP_ST_LOC, LOC_TEMP, // temp
 
@@ -239,6 +235,21 @@ public class BenmarkSimple extends BaseBenchmark {
             FrameDescriptor.Builder b = FrameDescriptor.newBuilder(3);
             b.addSlots(8, FrameSlotKind.Illegal);
             ManualUnsafeBytecodeNode node = new ManualUnsafeBytecodeNode(lang, b.build(), BYTECODE);
+            return node.getCallTarget();
+        });
+        BenchmarkLanguage.registerName2(NAME_MANUAL_UNSAFE_SUPERINSTRUCTION, lang -> {
+            FrameDescriptor.Builder b = FrameDescriptor.newBuilder(3);
+            b.addSlots(8, FrameSlotKind.Illegal);
+            short[] bcCopy = BYTECODE.clone();
+            bcCopy[49] = OP_SI_0;
+            bcCopy[30] = OP_SI_1;
+            ManualUnsafeSuperinstructionBytecodeNode node = new ManualUnsafeSuperinstructionBytecodeNode(lang, b.build(), bcCopy);
+            return node.getCallTarget();
+        });
+        BenchmarkLanguage.registerName2(NAME_MANUAL_UNSAFE_WRAPPED, lang -> {
+            FrameDescriptor.Builder b = FrameDescriptor.newBuilder(3);
+            b.addSlots(8, FrameSlotKind.Illegal);
+            ManualUnsafeWrappedBytecodeNode node = new ManualUnsafeWrappedBytecodeNode(lang, b.build(), BYTECODE);
             return node.getCallTarget();
         });
         BenchmarkLanguage.registerName2(NAME_AST, lang -> {
@@ -498,6 +509,16 @@ public class BenmarkSimple extends BaseBenchmark {
     @Benchmark
     public void manualUnsafe() {
         doEval(SOURCE_MANUAL_UNSAFE);
+    }
+
+    @Benchmark
+    public void manualUnsafeSuperinstruction() {
+        doEval(SOURCE_MANUAL_UNSAFE_SUPERINSTRUCTION);
+    }
+
+    @Benchmark
+    public void manualUnsafeWrapped() {
+        doEval(SOURCE_MANUAL_UNSAFE_WRAPPED);
     }
 
     @Benchmark

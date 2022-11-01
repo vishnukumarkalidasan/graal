@@ -355,7 +355,7 @@ public class OperationGeneratorUtils {
     public static CodeTree wrapExecuteInMethod(OperationsContext ctx, ExecutionVariables vars, String name, boolean isUncached, Consumer<CodeTreeBuilder> build, boolean doDecode) {
         ProcessorContext context = ProcessorContext.getInstance();
         createHelperMethod(ctx.outerType, name, () -> {
-            CodeExecutableElement m = new CodeExecutableElement(Set.of(Modifier.PRIVATE, Modifier.STATIC), context.getType(int.class), name);
+            CodeExecutableElement m = new CodeExecutableElement(Set.of(Modifier.PRIVATE, Modifier.STATIC), new GeneratedTypeMirror("", "Tuple2"), name);
             m.addAnnotationMirror(new CodeAnnotationMirror(context.getDeclaredType("com.oracle.truffle.api.HostCompilerDirectives.BytecodeInterpreterSwitch")));
             m.addParameter(vars.stackFrame);
             if (ctx.getData().enableYield) {
@@ -390,7 +390,7 @@ public class OperationGeneratorUtils {
 
         CodeTreeBuilder b = CodeTreeBuilder.createBuilder();
         if (doDecode) {
-            b.startAssign("int _enc");
+            b.startAssign("Tuple2 _enc");
         }
         b.startCall(name);
 
@@ -420,14 +420,14 @@ public class OperationGeneratorUtils {
 
         if (doDecode) {
             b.end();
-            b.startAssign(vars.bci).string("_enc & 0xffff").end();
-            b.startAssign(vars.sp).string("(_enc >> 16) & 0xffff").end();
+            b.startAssign(vars.sp).string("_enc.x0").end();
+            b.startAssign(vars.bci).string("_enc.x1").end();
         }
 
         return b.build();
     }
 
     public static CodeTree encodeExecuteReturn() {
-        return CodeTreeBuilder.createBuilder().startReturn().string("($sp << 16) | $bci").end().build();
+        return CodeTreeBuilder.createBuilder().startReturn().string("new Tuple2($sp, $bci)").end().build();
     }
 }

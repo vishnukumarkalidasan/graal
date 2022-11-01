@@ -122,9 +122,9 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
                             return (($sp - 1) << 16) | 0xffff;
                         }
                         default :
-                            int _enc = __helper0($frame, $this, $bc, $bci, $sp, $consts, $children, $conditionProfiles, loopCounter, curOpcode, $localTags);
-                            $bci = _enc & 0xffff;
-                            $sp = (_enc >> 16) & 0xffff;
+                            Tuple2 _enc = __helper0($frame, $this, $bc, $bci, $sp, $consts, $children, $conditionProfiles, loopCounter, curOpcode, $localTags);
+                            $sp = _enc.x0;
+                            $bci = _enc.x1;
                             continue loop;
                     }
                 } catch (AbstractTruffleException ex) {
@@ -6112,9 +6112,9 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
                             return (($sp - 1) << 16) | 0xffff;
                         }
                         default :
-                            int _enc = __helper1($frame, $this, $bc, $bci, $sp, $consts, $children, $conditionProfiles, loopCounter, curOpcode, $localTags, uncachedExecuteCount);
-                            $bci = _enc & 0xffff;
-                            $sp = (_enc >> 16) & 0xffff;
+                            Tuple2 _enc = __helper1($frame, $this, $bc, $bci, $sp, $consts, $children, $conditionProfiles, loopCounter, curOpcode, $localTags, uncachedExecuteCount);
+                            $sp = _enc.x0;
+                            $bci = _enc.x1;
                             continue loop;
                     }
                 } catch (AbstractTruffleException ex) {
@@ -9101,17 +9101,17 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_POP(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_POP(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         $sp = $sp - 1;
         $frame.clear($sp);
         $bci = $bci + POP_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_BRANCH(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_BRANCH(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int targetBci = unsafeFromBytecode($bc, $bci + BRANCH_BRANCH_TARGET_OFFSET + 0);
@@ -9124,32 +9124,32 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
                     Object osrResult = BytecodeOSRNode.tryOSR($this, ($sp << 16) | targetBci, $frame, null, $frame);
                     if (osrResult != null) {
                         $frame.setObject(0, osrResult);
-                        return 0x0000ffff;
+                        return new Tuple2(0, -1);
                     }
                 }
             }
         }
         $bci = targetBci;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         boolean cond = UFA.unsafeGetObject($frame, $sp - 1) == Boolean.TRUE;
         $sp = $sp - 1;
         if (do_profileCondition($this, cond, $conditionProfiles, unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_PROFILE_OFFSET + 0))) {
             $bci = $bci + BRANCH_FALSE_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_THROW(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_THROW(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int slot = unsafeFromBytecode($bc, $bci + THROW_LOCALS_OFFSET + 0);
@@ -9157,23 +9157,23 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
         $sp = $sp + 1;
         $bci = $bci + LOAD_CONSTANT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_ARGUMENT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_ARGUMENT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
         $sp = $sp + 1;
         $bci = $bci + LOAD_ARGUMENT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void do_loadLocal_OBJECT(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9196,14 +9196,31 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
         do_loadLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp++;
         $bci = $bci + LOAD_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
+    }
+
+    private static void do_loadLocal_BOOLEAN_specialize(VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
+        Object result = $frame.getValue(localIdx);
+        if (result instanceof Boolean) {
+            if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
+                unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 5 /* BOOLEAN */));
+            } else {
+                UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 5 /* BOOLEAN */);
+                UFA.unsafeSetBoolean($frame, localIdx, (boolean) result);
+                UFA.unsafeSetBoolean($frame, $sp, (boolean) result);
+                return;
+            }
+        }
+        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
+        UFA.unsafeSetObject($frame, localIdx, result);
+        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     private static void do_loadLocal_BOOLEAN(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9212,33 +9229,36 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             return;
         } catch (FrameSlotTypeException ex) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            Object result = $frame.getValue(localIdx);
-            if (result instanceof Boolean) {
-                if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
-                    unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 5 /* BOOLEAN */));
-                } else {
-                    UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 5 /* BOOLEAN */);
-                    UFA.unsafeSetBoolean($frame, localIdx, (boolean) result);
-                    UFA.unsafeSetBoolean($frame, $sp, (boolean) result);
-                    return;
-                }
-            }
+            do_loadLocal_BOOLEAN_specialize($frame, $bc, $bci, $sp, localTags, localIdx);
         }
-        Object result = $frame.getValue(localIdx);
-        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
-        UFA.unsafeSetObject($frame, localIdx, result);
-        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
         do_loadLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp++;
         $bci = $bci + LOAD_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
+    }
+
+    private static void do_loadLocal_LONG_specialize(VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
+        Object result = $frame.getValue(localIdx);
+        if (result instanceof Long) {
+            if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
+                unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 1 /* LONG */));
+            } else {
+                UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 1 /* LONG */);
+                UFA.unsafeSetLong($frame, localIdx, (long) result);
+                UFA.unsafeSetLong($frame, $sp, (long) result);
+                return;
+            }
+        }
+        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
+        UFA.unsafeSetObject($frame, localIdx, result);
+        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     private static void do_loadLocal_LONG(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9247,44 +9267,47 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             return;
         } catch (FrameSlotTypeException ex) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            Object result = $frame.getValue(localIdx);
-            if (result instanceof Long) {
-                if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
-                    unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 1 /* LONG */));
-                } else {
-                    UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 1 /* LONG */);
-                    UFA.unsafeSetLong($frame, localIdx, (long) result);
-                    UFA.unsafeSetLong($frame, $sp, (long) result);
-                    return;
-                }
-            }
+            do_loadLocal_LONG_specialize($frame, $bc, $bci, $sp, localTags, localIdx);
         }
-        Object result = $frame.getValue(localIdx);
-        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
-        UFA.unsafeSetObject($frame, localIdx, result);
-        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
         do_loadLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp++;
         $bci = $bci + LOAD_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_BOXED_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_BOXED_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         CompilerDirectives.transferToInterpreterAndInvalidate();
         unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL << 3) | 0));
         $bci -= LOAD_LOCAL_BOXED_LENGTH;
         $bci = $bci + LOAD_LOCAL_BOXED_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
+    }
+
+    private static void do_loadLocalBoxed_BOOLEAN_specialize(VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
+        Object result = $frame.getValue(localIdx);
+        if (result instanceof Boolean) {
+            if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
+                unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 5 /* BOOLEAN */));
+            } else {
+                UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 5 /* BOOLEAN */);
+                UFA.unsafeSetBoolean($frame, localIdx, (boolean) result);
+                UFA.unsafeSetBoolean($frame, $sp, (boolean) result);
+                return;
+            }
+        }
+        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
+        UFA.unsafeSetObject($frame, localIdx, result);
+        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     private static void do_loadLocalBoxed_BOOLEAN(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9293,33 +9316,36 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             return;
         } catch (FrameSlotTypeException | ClassCastException ex) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            Object result = $frame.getValue(localIdx);
-            if (result instanceof Boolean) {
-                if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
-                    unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 5 /* BOOLEAN */));
-                } else {
-                    UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 5 /* BOOLEAN */);
-                    UFA.unsafeSetBoolean($frame, localIdx, (boolean) result);
-                    UFA.unsafeSetBoolean($frame, $sp, (boolean) result);
-                    return;
-                }
-            }
+            do_loadLocalBoxed_BOOLEAN_specialize($frame, $bc, $bci, $sp, localTags, localIdx);
         }
-        Object result = $frame.getValue(localIdx);
-        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
-        UFA.unsafeSetObject($frame, localIdx, result);
-        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_BOXED_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_BOXED_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_BOXED_LOCALS_OFFSET + 0);
         do_loadLocalBoxed_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp++;
         $bci = $bci + LOAD_LOCAL_BOXED_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
+    }
+
+    private static void do_loadLocalBoxed_LONG_specialize(VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
+        Object result = $frame.getValue(localIdx);
+        if (result instanceof Long) {
+            if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
+                unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 1 /* LONG */));
+            } else {
+                UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 1 /* LONG */);
+                UFA.unsafeSetLong($frame, localIdx, (long) result);
+                UFA.unsafeSetLong($frame, $sp, (long) result);
+                return;
+            }
+        }
+        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
+        UFA.unsafeSetObject($frame, localIdx, result);
+        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     private static void do_loadLocalBoxed_LONG(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9328,33 +9354,19 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             return;
         } catch (FrameSlotTypeException | ClassCastException ex) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            Object result = $frame.getValue(localIdx);
-            if (result instanceof Long) {
-                if (UFA.unsafeByteArrayRead(localTags, localIdx) == 7) {
-                    unsafeWriteBytecode($bc, $bci, (short) ((INSTR_LOAD_LOCAL_BOXED << 3) | 1 /* LONG */));
-                } else {
-                    UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 1 /* LONG */);
-                    UFA.unsafeSetLong($frame, localIdx, (long) result);
-                    UFA.unsafeSetLong($frame, $sp, (long) result);
-                    return;
-                }
-            }
+            do_loadLocalBoxed_LONG_specialize($frame, $bc, $bci, $sp, localTags, localIdx);
         }
-        Object result = $frame.getValue(localIdx);
-        UFA.unsafeByteArrayWrite(localTags, localIdx, (byte) 7);
-        UFA.unsafeSetObject($frame, localIdx, result);
-        UFA.unsafeSetObject($frame, $sp, result);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_BOXED_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_BOXED_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_BOXED_LOCALS_OFFSET + 0);
         do_loadLocalBoxed_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp++;
         $bci = $bci + LOAD_LOCAL_BOXED_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void do_storeLocalSpecialize(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int primitiveTag, int localIdx, int sourceSlot) {
@@ -9397,14 +9409,14 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_STORE_LOCAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_STORE_LOCAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
         do_storeLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp--;
         $bci = $bci + STORE_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void do_storeLocal_BOOLEAN(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9422,14 +9434,14 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_STORE_LOCAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_STORE_LOCAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
         do_storeLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp--;
         $bci = $bci + STORE_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void do_storeLocal_LONG(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9447,14 +9459,14 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_STORE_LOCAL_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_STORE_LOCAL_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
         do_storeLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp--;
         $bci = $bci + STORE_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void do_storeLocal_null(SLOperationRootNodeGen $this, VirtualFrame $frame, short[] $bc, int $bci, int $sp, byte[] localTags, int localIdx) {
@@ -9469,29 +9481,29 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_STORE_LOCAL_GENERIC(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_STORE_LOCAL_GENERIC(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
         do_storeLocal_null($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
         $sp--;
         $bci = $bci + STORE_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_LOAD_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_LOAD_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         Frame outerFrame;
         outerFrame = (Frame) UFA.unsafeGetObject($frame, $sp - 1);
         UFA.unsafeSetObject($frame, $sp - 1, outerFrame.getObject(unsafeFromBytecode($bc, $bci + LOAD_LOCAL_MAT_ARGUMENT_OFFSET + 0)));
         $bci = $bci + LOAD_LOCAL_MAT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_STORE_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_STORE_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         Frame outerFrame;
@@ -9499,7 +9511,7 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
         outerFrame.setObject(unsafeFromBytecode($bc, $bci + STORE_LOCAL_MAT_ARGUMENT_OFFSET + 0), UFA.unsafeGetObject($frame, $sp - 1));
         $sp -= 2;
         $bci = $bci + STORE_LOCAL_MAT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLAdd_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9509,13 +9521,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_ADD_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_ADD_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLAdd_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_ADD_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLAdd_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9529,13 +9541,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_ADD_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_ADD_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLAdd_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_ADD_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLDiv_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9545,13 +9557,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_DIV_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_DIV_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLDiv_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_DIV_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLDiv_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9565,13 +9577,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_DIV_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_DIV_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLDiv_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_DIV_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLEqual_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9581,13 +9593,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_EQUAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_EQUAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLEqual_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_EQUAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLEqual_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9597,13 +9609,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_EQUAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_EQUAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLEqual_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_EQUAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLessOrEqual_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9613,13 +9625,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_LESS_OR_EQUAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_LESS_OR_EQUAL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLessOrEqual_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_LESS_OR_EQUAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLessOrEqual_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9633,13 +9645,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_LESS_OR_EQUAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_LESS_OR_EQUAL_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLessOrEqual_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_LESS_OR_EQUAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLessThan_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9649,13 +9661,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_LESS_THAN_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_LESS_THAN_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLessThan_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_LESS_THAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLessThan_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9669,13 +9681,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_LESS_THAN_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_LESS_THAN_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLessThan_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_LESS_THAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLogicalNot_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9685,12 +9697,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_LOGICAL_NOT_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_LOGICAL_NOT_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLogicalNot_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_LOGICAL_NOT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLogicalNot_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9704,12 +9716,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_LOGICAL_NOT_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_LOGICAL_NOT_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLogicalNot_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_LOGICAL_NOT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLMul_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9719,13 +9731,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_MUL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_MUL_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLMul_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_MUL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLMul_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9739,13 +9751,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_MUL_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_MUL_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLMul_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_MUL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLReadProperty_entryPoint_(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9754,13 +9766,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLReadProperty_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_READ_PROPERTY_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLSub_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9770,13 +9782,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_SUB_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_SUB_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLSub_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_SUB_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLSub_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9790,13 +9802,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_SUB_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_SUB_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLSub_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_SUB_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLWriteProperty_entryPoint_(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9805,13 +9817,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_WRITE_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_WRITE_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLWriteProperty_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -2;
         $bci = $bci + C_SL_WRITE_PROPERTY_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9821,12 +9833,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9840,12 +9852,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9859,12 +9871,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLFunctionLiteral_entryPoint_(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9873,12 +9885,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_FUNCTION_LITERAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_FUNCTION_LITERAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLFunctionLiteral_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_FUNCTION_LITERAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLToBoolean_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9888,12 +9900,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_TO_BOOLEAN_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_TO_BOOLEAN_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLToBoolean_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_TO_BOOLEAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLToBoolean_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -9903,12 +9915,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_TO_BOOLEAN_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_TO_BOOLEAN_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLToBoolean_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_TO_BOOLEAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLInvoke_entryPoint_(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children, int $numVariadics) {
@@ -9917,69 +9929,69 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_INVOKE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_INVOKE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         int numVariadics = unsafeFromBytecode($bc, $bci + C_SL_INVOKE_VARIADIC_OFFSET + 0);
         SLInvoke_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children, numVariadics);
         $sp +=  - numVariadics;
         $bci = $bci + C_SL_INVOKE_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SC_SL_AND_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SC_SL_AND_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         if (BytecodeNode.SLAnd_execute_($frame, $this, $bc, $bci, $sp, $consts, $children)) {
             $sp = $sp - 1;
             $bci = $bci + SC_SL_AND_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + SC_SL_AND_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SC_SL_AND_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SC_SL_AND_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         if (BytecodeNode.SLAnd_execute_($frame, $this, $bc, $bci, $sp, $consts, $children)) {
             $sp = $sp - 1;
             $bci = $bci + SC_SL_AND_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + SC_SL_AND_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SC_SL_OR_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SC_SL_OR_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         if (!BytecodeNode.SLOr_execute_($frame, $this, $bc, $bci, $sp, $consts, $children)) {
             $sp = $sp - 1;
             $bci = $bci + SC_SL_OR_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + SC_SL_OR_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SC_SL_OR_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SC_SL_OR_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         if (!BytecodeNode.SLOr_execute_($frame, $this, $bc, $bci, $sp, $consts, $children)) {
             $sp = $sp - 1;
             $bci = $bci + SC_SL_OR_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + SC_SL_OR_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
@@ -9990,12 +10002,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_LONG_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_LONG_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromLong_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromLong_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10009,12 +10021,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_LONG_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_LONG_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromLong_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromLong_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10028,12 +10040,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_LONG_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_LONG_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromLong_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBigNumber_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10043,12 +10055,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBigNumber_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BIG_NUMBER_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBigNumber_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10062,12 +10074,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBigNumber_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BIG_NUMBER_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBigNumber_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10081,12 +10093,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBigNumber_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BIG_NUMBER_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBigNumber_FromLong_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10096,12 +10108,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBigNumber_FromLong_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBigNumber_FromLong_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10115,12 +10127,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBigNumber_FromLong_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBigNumber_FromLong_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10134,12 +10146,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBigNumber_FromLong_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BIG_NUMBER_FROM_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBoolean_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10149,12 +10161,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BOOLEAN_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BOOLEAN_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBoolean_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BOOLEAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBoolean_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10168,12 +10180,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BOOLEAN_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BOOLEAN_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBoolean_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BOOLEAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_q_FromBoolean_entryPoint_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10187,12 +10199,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_UNBOX_Q_FROM_BOOLEAN_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_UNBOX_Q_FROM_BOOLEAN_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_q_FromBoolean_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_Q_FROM_BOOLEAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLReadProperty_q_ReadSLObject0_entryPoint_(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10201,13 +10213,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_READ_PROPERTY_Q_READ_SL_OBJECT0(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_READ_PROPERTY_Q_READ_SL_OBJECT0(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLReadProperty_q_ReadSLObject0_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_READ_PROPERTY_Q_READ_SL_OBJECT0_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLAdd_q_AddLong_entryPoint_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10217,13 +10229,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_ADD_Q_ADD_LONG_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_ADD_Q_ADD_LONG_OBJECT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLAdd_q_AddLong_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_ADD_Q_ADD_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLAdd_q_AddLong_entryPoint_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -10237,17 +10249,17 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_C_SL_ADD_Q_ADD_LONG_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_C_SL_ADD_Q_ADD_LONG_LONG(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLAdd_q_AddLong_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_ADD_Q_ADD_LONG_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -10292,11 +10304,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -10416,11 +10428,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
@@ -10575,202 +10587,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
-        UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
-        $sp = $sp + 1;
-        $bci = $bci + LOAD_ARGUMENT_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-            case 7 /* generic */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_null($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-        }
-        $bci = $bci + STORE_LOCAL_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-                do_loadLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp++;
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-                do_loadLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp++;
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-                do_loadLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp++;
-                break;
-            }
-        }
-        $bci = $bci + LOAD_LOCAL_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-        }
-        $bci = $bci + C_SL_UNBOX_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-                do_loadLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp++;
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-                do_loadLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp++;
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-                do_loadLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp++;
-                break;
-            }
-        }
-        $bci = $bci + LOAD_LOCAL_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-        }
-        $bci = $bci + C_SL_UNBOX_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                SLAdd_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
-                $sp += -1;
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                SLAdd_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
-                $sp += -1;
-                break;
-            }
-        }
-        $bci = $bci + C_SL_ADD_LENGTH;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
-                break;
-            }
-        }
-        $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
-    }
-
-    @BytecodeInterpreterSwitch
-    private static int execute_SI_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
-        int $bci = $startBci;
-        int $sp = $startSp;
-        switch (unsafeFromBytecode($bc, $bci) & 7) {
-            case 0 /* OBJECT */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-            case 5 /* BOOLEAN */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-            case 1 /* LONG */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-            case 7 /* generic */ :
-            {
-                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-                do_storeLocal_null($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
-                $sp--;
-                break;
-            }
-        }
-        $bci = $bci + STORE_LOCAL_LENGTH;
         UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
         $sp = $sp + 1;
         $bci = $bci + LOAD_ARGUMENT_LENGTH;
@@ -10904,11 +10727,200 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_ADD_LENGTH;
-        return ($sp << 16) | $bci;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+        }
+        $bci = $bci + C_SL_UNBOX_LENGTH;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+        int $bci = $startBci;
+        int $sp = $startSp;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+            case 7 /* generic */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_null($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+        }
+        $bci = $bci + STORE_LOCAL_LENGTH;
+        UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
+        $sp = $sp + 1;
+        $bci = $bci + LOAD_ARGUMENT_LENGTH;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+            case 7 /* generic */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+                do_storeLocal_null($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp--;
+                break;
+            }
+        }
+        $bci = $bci + STORE_LOCAL_LENGTH;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+                do_loadLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp++;
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+                do_loadLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp++;
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+                do_loadLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp++;
+                break;
+            }
+        }
+        $bci = $bci + LOAD_LOCAL_LENGTH;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+        }
+        $bci = $bci + C_SL_UNBOX_LENGTH;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+                do_loadLocal_OBJECT($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp++;
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+                do_loadLocal_BOOLEAN($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp++;
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+                do_loadLocal_LONG($this, $frame, $bc, $bci, $sp, $localTags, localIdx);
+                $sp++;
+                break;
+            }
+        }
+        $bci = $bci + LOAD_LOCAL_LENGTH;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                SLUnbox_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                SLUnbox_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+            case 5 /* BOOLEAN */ :
+            {
+                SLUnbox_entryPoint_BOOLEAN($frame, $this, $bc, $bci, $sp, $consts, $children);
+                break;
+            }
+        }
+        $bci = $bci + C_SL_UNBOX_LENGTH;
+        switch (unsafeFromBytecode($bc, $bci) & 7) {
+            case 0 /* OBJECT */ :
+            {
+                SLAdd_entryPoint_OBJECT($frame, $this, $bc, $bci, $sp, $consts, $children);
+                $sp += -1;
+                break;
+            }
+            case 1 /* LONG */ :
+            {
+                SLAdd_entryPoint_LONG($frame, $this, $bc, $bci, $sp, $consts, $children);
+                $sp += -1;
+                break;
+            }
+        }
+        $bci = $bci + C_SL_ADD_LENGTH;
+        return new Tuple2($sp, $bci);
+    }
+
+    @BytecodeInterpreterSwitch
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -10959,11 +10971,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11059,11 +11071,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11141,11 +11153,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11220,11 +11232,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11344,11 +11356,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11447,11 +11459,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11556,11 +11568,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
@@ -11650,11 +11662,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_ADD_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -11753,11 +11765,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
@@ -11841,11 +11853,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
         SLReadProperty_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_READ_PROPERTY_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
@@ -11935,11 +11947,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_ADD_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -12044,11 +12056,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
         $sp = $sp + 1;
         $bci = $bci + LOAD_CONSTANT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_POP_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_POP_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         $sp = $sp - 1;
@@ -12132,11 +12144,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
         $sp = $sp + 1;
         $bci = $bci + LOAD_CONSTANT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLReadProperty_entryPoint_($frame, $this, $bc, $bci, $sp, $consts, $children);
@@ -12241,11 +12253,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
@@ -12295,11 +12307,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -12425,11 +12437,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_POP_LOAD_LOCAL_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_POP_LOAD_LOCAL_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         $sp = $sp - 1;
@@ -12531,11 +12543,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_POP_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_POP_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         $sp = $sp - 1;
@@ -12588,11 +12600,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             }
         }
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int execute_SI_C_SL_TO_BOOLEAN_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 execute_SI_C_SL_TO_BOOLEAN_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (unsafeFromBytecode($bc, $bci) & 7) {
@@ -12612,15 +12624,15 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
         $sp = $sp - 1;
         if (do_profileCondition($this, cond, $conditionProfiles, unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_PROFILE_OFFSET + 0))) {
             $bci = $bci + BRANCH_FALSE_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int __helper0(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
+    private static Tuple2 __helper0(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (curOpcode) {
@@ -13434,17 +13446,17 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_POP(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_POP(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         $sp = $sp - 1;
         $frame.clear($sp);
         $bci = $bci + POP_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_BRANCH(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_BRANCH(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         int targetBci = unsafeFromBytecode($bc, $bci + BRANCH_BRANCH_TARGET_OFFSET + 0);
@@ -13457,37 +13469,37 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
                     Object osrResult = BytecodeOSRNode.tryOSR($this, ($sp << 16) | targetBci, $frame, null, $frame);
                     if (osrResult != null) {
                         $frame.setObject(0, osrResult);
-                        return 0x0000ffff;
+                        return new Tuple2(0, -1);
                     }
                 }
             }
             uncachedExecuteCount.count--;
             if (uncachedExecuteCount.count <= 0) {
                 $this.changeInterpreters(COMMON_EXECUTE);
-                return ($sp << 16) | targetBci;
+                return new Tuple2($sp, targetBci);
             }
         }
         $bci = targetBci;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         boolean cond = UFA.unsafeGetObject($frame, $sp - 1) == Boolean.TRUE;
         $sp = $sp - 1;
         if (do_profileCondition($this, cond, $conditionProfiles, unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_PROFILE_OFFSET + 0))) {
             $bci = $bci + BRANCH_FALSE_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_THROW(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_THROW(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         int slot = unsafeFromBytecode($bc, $bci + THROW_LOCALS_OFFSET + 0);
@@ -13495,71 +13507,71 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, UFA.unsafeObjectArrayRead($consts, unsafeFromBytecode($bc, $bci + LOAD_CONSTANT_CONSTANT_OFFSET) + 0));
         $sp = $sp + 1;
         $bci = $bci + LOAD_CONSTANT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_LOAD_ARGUMENT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_LOAD_ARGUMENT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
         $sp = $sp + 1;
         $bci = $bci + LOAD_ARGUMENT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_LOAD_LOCAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_LOAD_LOCAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
         UFA.unsafeCopyObject($frame, localIdx, $sp);
         $sp += 1;
         $bci = $bci + LOAD_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_LOAD_LOCAL_BOXED(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_LOAD_LOCAL_BOXED(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_BOXED_LOCALS_OFFSET + 0);
         UFA.unsafeCopyObject($frame, localIdx, $sp);
         $sp += 1;
         $bci = $bci + LOAD_LOCAL_BOXED_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_STORE_LOCAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_STORE_LOCAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
         UFA.unsafeCopyObject($frame, $sp - 1, localIdx);
         $sp -= 1;
         $bci = $bci + STORE_LOCAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_LOAD_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_LOAD_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         Frame outerFrame;
         outerFrame = (Frame) UFA.unsafeGetObject($frame, $sp - 1);
         UFA.unsafeSetObject($frame, $sp - 1, outerFrame.getObject(unsafeFromBytecode($bc, $bci + LOAD_LOCAL_MAT_ARGUMENT_OFFSET + 0)));
         $bci = $bci + LOAD_LOCAL_MAT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_STORE_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_STORE_LOCAL_MAT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         Frame outerFrame;
@@ -13567,7 +13579,7 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
         outerFrame.setObject(unsafeFromBytecode($bc, $bci + STORE_LOCAL_MAT_ARGUMENT_OFFSET + 0), UFA.unsafeGetObject($frame, $sp - 1));
         $sp -= 2;
         $bci = $bci + STORE_LOCAL_MAT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLAdd_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13576,13 +13588,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLAdd_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_ADD_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLDiv_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13591,13 +13603,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_DIV(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_DIV(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLDiv_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_DIV_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLEqual_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13606,13 +13618,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_EQUAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_EQUAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLEqual_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_EQUAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLessOrEqual_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13621,13 +13633,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_LESS_OR_EQUAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_LESS_OR_EQUAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLessOrEqual_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_LESS_OR_EQUAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLessThan_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13636,13 +13648,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_LESS_THAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_LESS_THAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLessThan_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_LESS_THAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLLogicalNot_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13651,12 +13663,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_LOGICAL_NOT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_LOGICAL_NOT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLLogicalNot_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_LOGICAL_NOT_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLMul_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13665,13 +13677,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_MUL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_MUL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLMul_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_MUL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLReadProperty_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13680,13 +13692,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLReadProperty_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_READ_PROPERTY_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLSub_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13695,13 +13707,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_SUB(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_SUB(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLSub_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -1;
         $bci = $bci + C_SL_SUB_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLWriteProperty_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13710,13 +13722,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_WRITE_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_WRITE_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLWriteProperty_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $sp += -2;
         $bci = $bci + C_SL_WRITE_PROPERTY_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLUnbox_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13725,12 +13737,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_UNBOX_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLFunctionLiteral_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13739,12 +13751,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_FUNCTION_LITERAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_FUNCTION_LITERAL(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLFunctionLiteral_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_FUNCTION_LITERAL_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLToBoolean_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children) {
@@ -13753,12 +13765,12 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_TO_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_TO_BOOLEAN(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         SLToBoolean_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
         $bci = $bci + C_SL_TO_BOOLEAN_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     private static void SLInvoke_entryPoint_uncached(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $bci, int $sp, Object[] $consts, Node[] $children, int $numVariadics) {
@@ -13767,46 +13779,46 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_C_SL_INVOKE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_C_SL_INVOKE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         int numVariadics = unsafeFromBytecode($bc, $bci + C_SL_INVOKE_VARIADIC_OFFSET + 0);
         SLInvoke_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children, numVariadics);
         $sp +=  - numVariadics;
         $bci = $bci + C_SL_INVOKE_LENGTH;
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SC_SL_AND(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SC_SL_AND(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         if (BytecodeNode.SLAnd_execute_($frame, $this, $bc, $bci, $sp, $consts, $children)) {
             $sp = $sp - 1;
             $bci = $bci + SC_SL_AND_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + SC_SL_AND_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SC_SL_OR(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SC_SL_OR(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         if (!BytecodeNode.SLOr_execute_($frame, $this, $bc, $bci, $sp, $consts, $children)) {
             $sp = $sp - 1;
             $bci = $bci + SC_SL_OR_LENGTH;
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         } else {
             $bci = unsafeFromBytecode($bc, $bci + SC_SL_OR_BRANCH_TARGET_OFFSET + 0);
-            return ($sp << 16) | $bci;
+            return new Tuple2($sp, $bci);
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -13819,11 +13831,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -13855,11 +13867,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -13904,66 +13916,13 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
-        {
-            UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
-            $sp = $sp + 1;
-            $bci = $bci + LOAD_ARGUMENT_LENGTH;
-        }
-        {
-            int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-            UFA.unsafeCopyObject($frame, $sp - 1, localIdx);
-            $sp -= 1;
-            $bci = $bci + STORE_LOCAL_LENGTH;
-        }
-        {
-            int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-            UFA.unsafeCopyObject($frame, localIdx, $sp);
-            $sp += 1;
-            $bci = $bci + LOAD_LOCAL_LENGTH;
-        }
-        {
-            SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
-            $bci = $bci + C_SL_UNBOX_LENGTH;
-        }
-        {
-            int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
-            UFA.unsafeCopyObject($frame, localIdx, $sp);
-            $sp += 1;
-            $bci = $bci + LOAD_LOCAL_LENGTH;
-        }
-        {
-            SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
-            $bci = $bci + C_SL_UNBOX_LENGTH;
-        }
-        {
-            SLAdd_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
-            $sp += -1;
-            $bci = $bci + C_SL_ADD_LENGTH;
-        }
-        {
-            SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
-            $bci = $bci + C_SL_UNBOX_LENGTH;
-        }
-        return ($sp << 16) | $bci;
-    }
-
-    @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
-        int $bci = $startBci;
-        int $sp = $startSp;
-        {
-            int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
-            UFA.unsafeCopyObject($frame, $sp - 1, localIdx);
-            $sp -= 1;
-            $bci = $bci + STORE_LOCAL_LENGTH;
-        }
         {
             UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
             $sp = $sp + 1;
@@ -14000,11 +13959,64 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp += -1;
             $bci = $bci + C_SL_ADD_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        {
+            SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
+            $bci = $bci + C_SL_UNBOX_LENGTH;
+        }
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_STORE_LOCAL_LOAD_ARGUMENT_STORE_LOCAL_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+        int $bci = $startBci;
+        int $sp = $startSp;
+        {
+            int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+            UFA.unsafeCopyObject($frame, $sp - 1, localIdx);
+            $sp -= 1;
+            $bci = $bci + STORE_LOCAL_LENGTH;
+        }
+        {
+            UFA.unsafeSetObject($frame, $sp, $frame.getArguments()[unsafeFromBytecode($bc, $bci + LOAD_ARGUMENT_ARGUMENT_OFFSET + 0)]);
+            $sp = $sp + 1;
+            $bci = $bci + LOAD_ARGUMENT_LENGTH;
+        }
+        {
+            int localIdx = unsafeFromBytecode($bc, $bci + STORE_LOCAL_LOCALS_OFFSET + 0);
+            UFA.unsafeCopyObject($frame, $sp - 1, localIdx);
+            $sp -= 1;
+            $bci = $bci + STORE_LOCAL_LENGTH;
+        }
+        {
+            int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+            UFA.unsafeCopyObject($frame, localIdx, $sp);
+            $sp += 1;
+            $bci = $bci + LOAD_LOCAL_LENGTH;
+        }
+        {
+            SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
+            $bci = $bci + C_SL_UNBOX_LENGTH;
+        }
+        {
+            int localIdx = unsafeFromBytecode($bc, $bci + LOAD_LOCAL_LOCALS_OFFSET + 0);
+            UFA.unsafeCopyObject($frame, localIdx, $sp);
+            $sp += 1;
+            $bci = $bci + LOAD_LOCAL_LENGTH;
+        }
+        {
+            SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
+            $bci = $bci + C_SL_UNBOX_LENGTH;
+        }
+        {
+            SLAdd_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
+            $sp += -1;
+            $bci = $bci + C_SL_ADD_LENGTH;
+        }
+        return new Tuple2($sp, $bci);
+    }
+
+    @BytecodeInterpreterSwitch
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14027,11 +14039,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14057,11 +14069,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14095,11 +14107,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14124,11 +14136,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14160,11 +14172,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14207,11 +14219,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14252,11 +14264,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14298,11 +14310,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp += -1;
             $bci = $bci + C_SL_ADD_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14345,11 +14357,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14393,11 +14405,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp += -1;
             $bci = $bci + C_SL_READ_PROPERTY_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14439,11 +14451,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp += -1;
             $bci = $bci + C_SL_ADD_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14488,11 +14500,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp = $sp + 1;
             $bci = $bci + LOAD_CONSTANT_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_POP_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_POP_LOAD_LOCAL_LOAD_CONSTANT_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_CONSTANT(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14536,11 +14548,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp = $sp + 1;
             $bci = $bci + LOAD_CONSTANT_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14581,11 +14593,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14607,11 +14619,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_LOAD_LOCAL_LOAD_CONSTANT_C_SL_READ_PROPERTY_C_SL_UNBOX_LOAD_LOCAL_BOXED_C_SL_UNBOX_C_SL_LESS_OR_EQUAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14653,11 +14665,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_POP_LOAD_LOCAL_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_POP_LOAD_LOCAL_C_SL_UNBOX_LOAD_CONSTANT_C_SL_UNBOX_C_SL_ADD_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14693,11 +14705,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_POP_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_POP_LOAD_CONSTANT_C_SL_FUNCTION_LITERAL_LOAD_LOCAL_C_SL_UNBOX(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14724,11 +14736,11 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             SLUnbox_entryPoint_uncached($frame, $this, $bc, $bci, $sp, $consts, $children);
             $bci = $bci + C_SL_UNBOX_LENGTH;
         }
-        return ($sp << 16) | $bci;
+        return new Tuple2($sp, $bci);
     }
 
     @BytecodeInterpreterSwitch
-    private static int executeUncached_SI_C_SL_TO_BOOLEAN_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 executeUncached_SI_C_SL_TO_BOOLEAN_BRANCH_FALSE(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         {
@@ -14740,16 +14752,16 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             $sp = $sp - 1;
             if (do_profileCondition($this, cond, $conditionProfiles, unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_PROFILE_OFFSET + 0))) {
                 $bci = $bci + BRANCH_FALSE_LENGTH;
-                return ($sp << 16) | $bci;
+                return new Tuple2($sp, $bci);
             } else {
                 $bci = unsafeFromBytecode($bc, $bci + BRANCH_FALSE_BRANCH_TARGET_OFFSET + 0);
-                return ($sp << 16) | $bci;
+                return new Tuple2($sp, $bci);
             }
         }
     }
 
     @BytecodeInterpreterSwitch
-    private static int __helper1(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
+    private static Tuple2 __helper1(VirtualFrame $frame, SLOperationRootNodeGen $this, short[] $bc, int $startBci, int $startSp, Object[] $consts, Node[] $children, int[] $conditionProfiles, Counter loopCounter, int curOpcode, byte[] $localTags, Counter uncachedExecuteCount) {
         int $bci = $startBci;
         int $sp = $startSp;
         switch (curOpcode) {
@@ -15456,34 +15468,6 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
             bc[bci] = (short) (targetType | (bc[bci] & 0xfff8));
         }
 
-        protected static boolean expectBoolean(VirtualFrame frame, int slot, short[] bc, int bci, int bciOffset) throws UnexpectedResultException {
-            if (bciOffset == 0) {
-                Object value = UFA.unsafeUncheckedGetObject(frame, slot);
-                if (value instanceof Boolean) {
-                    return (boolean) value;
-                } else {
-                    CompilerDirectives.transferToInterpreterAndInvalidate();
-                    throw new UnexpectedResultException(value);
-                }
-            } else {
-                switch (UFA.unsafeGetTag(frame, slot)) {
-                    case 5 /* BOOLEAN */ :
-                        return UFA.unsafeUncheckedGetBoolean(frame, slot);
-                    case 0 /* OBJECT */ :
-                        CompilerDirectives.transferToInterpreterAndInvalidate();
-                        Object value = UFA.unsafeUncheckedGetObject(frame, slot);
-                        if (value instanceof Boolean) {
-                            setResultBoxedImpl(bc, bci - bciOffset, 5 /* BOOLEAN */);
-                            return (boolean) value;
-                        }
-                        break;
-                }
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                setResultBoxedImpl(bc, bci - bciOffset, 0);
-                throw new UnexpectedResultException(frame.getValue(slot));
-            }
-        }
-
         protected static long expectLong(VirtualFrame frame, int slot, short[] bc, int bci, int bciOffset) throws UnexpectedResultException {
             if (bciOffset == 0) {
                 Object value = UFA.unsafeUncheckedGetObject(frame, slot);
@@ -15493,23 +15477,51 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
                     CompilerDirectives.transferToInterpreterAndInvalidate();
                     throw new UnexpectedResultException(value);
                 }
-            } else {
-                switch (UFA.unsafeGetTag(frame, slot)) {
-                    case 1 /* LONG */ :
-                        return UFA.unsafeUncheckedGetLong(frame, slot);
-                    case 0 /* OBJECT */ :
-                        CompilerDirectives.transferToInterpreterAndInvalidate();
-                        Object value = UFA.unsafeUncheckedGetObject(frame, slot);
-                        if (value instanceof Long) {
-                            setResultBoxedImpl(bc, bci - bciOffset, 1 /* LONG */);
-                            return (long) value;
-                        }
-                        break;
-                }
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                setResultBoxedImpl(bc, bci - bciOffset, 0);
-                throw new UnexpectedResultException(frame.getValue(slot));
             }
+            try {
+                return UFA.unsafeGetLong(frame, slot);
+            } catch (FrameSlotTypeException ex) {
+                CompilerDirectives.transferToInterpreterAndInvalidate();
+                return expectLongSpecialize(frame, slot, bc, bci, bciOffset);
+            }
+        }
+
+        protected static long expectLongSpecialize(VirtualFrame frame, int slot, short[] bc, int bci, int bciOffset) throws UnexpectedResultException {
+            Object value = UFA.unsafeUncheckedGetObject(frame, slot);
+            if (value instanceof Long) {
+                setResultBoxedImpl(bc, bci - bciOffset, 1 /* LONG */);
+                return (long) value;
+            }
+            setResultBoxedImpl(bc, bci - bciOffset, 0);
+            throw new UnexpectedResultException(frame.getValue(slot));
+        }
+
+        protected static boolean expectBoolean(VirtualFrame frame, int slot, short[] bc, int bci, int bciOffset) throws UnexpectedResultException {
+            if (bciOffset == 0) {
+                Object value = UFA.unsafeUncheckedGetObject(frame, slot);
+                if (value instanceof Boolean) {
+                    return (boolean) value;
+                } else {
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
+                    throw new UnexpectedResultException(value);
+                }
+            }
+            try {
+                return UFA.unsafeGetBoolean(frame, slot);
+            } catch (FrameSlotTypeException ex) {
+                CompilerDirectives.transferToInterpreterAndInvalidate();
+                return expectBooleanSpecialize(frame, slot, bc, bci, bciOffset);
+            }
+        }
+
+        protected static boolean expectBooleanSpecialize(VirtualFrame frame, int slot, short[] bc, int bci, int bciOffset) throws UnexpectedResultException {
+            Object value = UFA.unsafeUncheckedGetObject(frame, slot);
+            if (value instanceof Boolean) {
+                setResultBoxedImpl(bc, bci - bciOffset, 5 /* BOOLEAN */);
+                return (boolean) value;
+            }
+            setResultBoxedImpl(bc, bci - bciOffset, 0);
+            throw new UnexpectedResultException(frame.getValue(slot));
         }
 
     }
@@ -18555,6 +18567,17 @@ public final class SLOperationRootNodeGen extends SLOperationRootNode implements
     private static final class Counter {
 
         int count;
+
+    }
+    private static final class Tuple2 {
+
+        int x0;
+        int x1;
+
+        Tuple2(int x0, int x1) {
+            this.x0 = x0;
+            this.x1 = x1;
+        }
 
     }
 }

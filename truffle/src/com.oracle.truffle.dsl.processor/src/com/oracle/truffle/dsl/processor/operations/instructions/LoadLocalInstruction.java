@@ -56,6 +56,7 @@ import com.oracle.truffle.dsl.processor.java.model.CodeTreeBuilder;
 import com.oracle.truffle.dsl.processor.java.model.CodeVariableElement;
 import com.oracle.truffle.dsl.processor.operations.OperationGeneratorFlags;
 import com.oracle.truffle.dsl.processor.operations.OperationGeneratorUtils;
+import com.oracle.truffle.dsl.processor.operations.OperationsCodeGenerator;
 import com.oracle.truffle.dsl.processor.operations.OperationsContext;
 
 public class LoadLocalInstruction extends Instruction {
@@ -165,6 +166,9 @@ public class LoadLocalInstruction extends Instruction {
 
                     b.returnStatement();
                 } else {
+
+                    // primitive
+
                     b.startTryBlock();
                     b.startStatement().startCall("UFA", "unsafeSet" + kind.getFrameName());
                     b.variable(vars.stackFrame);
@@ -196,54 +200,82 @@ public class LoadLocalInstruction extends Instruction {
                     }
 
                     b.tree(GeneratorUtils.createTransferToInterpreterAndInvalidate());
-                    b.startAssign("Object result").startCall(vars.localFrame, "getValue").string("localIdx").end(2);
 
-                    b.startIf().string("result instanceof " + kind.getTypeNameBoxed()).end().startBlock();
+                    OperationGeneratorUtils.createHelperMethod(ctx.outerType, helperName + "_specialize", () -> {
+                        CodeExecutableElement mSpec = new CodeExecutableElement(Set.of(Modifier.STATIC, Modifier.PRIVATE), context.getType(void.class), helperName + "_specialize");
 
-                    b.startIf().startCall("UFA", "unsafeByteArrayRead").string("localTags").string("localIdx").end().string(" == 7").end().startBlock();
+                        mSpec.addParameter(vars.stackFrame);
+                        if (ctx.getData().enableYield) {
+                            mSpec.addParameter(vars.localFrame);
+                        }
+                        mSpec.addParameter(vars.bc);
+                        mSpec.addParameter(vars.bci);
+                        mSpec.addParameter(vars.sp);
+                        mSpec.addParameter(context.getType(byte[].class), "localTags");
+                        mSpec.addParameter(context.getType(int.class), "localIdx");
 
-                    if (OperationGeneratorFlags.LOG_LOCAL_LOADS_SPEC) {
-                        b.statement("System.err.printf(\" [load-spec]  local=%d value=%s kind=OBJECT->" + kind + " (boxed)%n\", localIdx, $frame.getValue(localIdx))");
+                        CodeTreeBuilder bSpec = mSpec.createBuilder();
+
+                        bSpec.startAssign("Object result").startCall(vars.localFrame, "getValue").string("localIdx").end(2);
+
+                        bSpec.startIf().string("result instanceof " + kind.getTypeNameBoxed()).end().startBlock();
+
+                        bSpec.startIf().startCall("UFA", "unsafeByteArrayRead").string("localTags").string("localIdx").end().string(" == 7").end().startBlock();
+
+                        if (OperationGeneratorFlags.LOG_LOCAL_LOADS_SPEC) {
+                            bSpec.statement("System.err.printf(\" [load-spec]  local=%d value=%s kind=OBJECT->" + kind + " (boxed)%n\", localIdx, $frame.getValue(localIdx))");
+                        }
+
+                        bSpec.tree(createWriteOpcode(vars.bc, vars.bci, combineBoxingBits(ctx, ctx.loadLocalBoxed, kind)));
+
+                        bSpec.end().startElseBlock();
+
+                        if (OperationGeneratorFlags.LOG_LOCAL_LOADS_SPEC) {
+                            bSpec.statement("System.err.printf(\" [load-spec]  local=%d value=%s kind=OBJECT->" + kind + "%n\", localIdx, $frame.getValue(localIdx))");
+                        }
+
+                        bSpec.startStatement().startCall("UFA", "unsafeByteArrayWrite");
+                        bSpec.string("localTags");
+                        bSpec.string("localIdx");
+                        bSpec.string("(byte) ", kind.toOrdinal());
+                        bSpec.end(2);
+
+                        bSpec.startStatement().startCall("UFA", "unsafeSet" + kind.getFrameName()).variable(vars.localFrame).string("localIdx").string("(", kind.getTypeName(), ") result").end(2);
+                        bSpec.startStatement().startCall("UFA", "unsafeSet" + kind.getFrameName()).variable(vars.stackFrame).variable(vars.sp).string("(", kind.getTypeName(), ") result").end(2);
+                        bSpec.returnStatement();
+
+                        bSpec.end(); // if tag
+                        bSpec.end(); // if instanceof
+
+                        if (OperationGeneratorFlags.LOG_LOCAL_LOADS_SPEC) {
+                            bSpec.statement("System.err.printf(\" [load-spec]  local=%d value=%s kind=" + kind + "->OBJECT boxed=" + boxed + "%n\", localIdx, $frame.getValue(localIdx))");
+                        }
+
+                        bSpec.startStatement().startCall("UFA", "unsafeByteArrayWrite");
+                        bSpec.string("localTags");
+                        bSpec.string("localIdx");
+                        bSpec.string("(byte) 7");
+                        bSpec.end(2);
+
+                        bSpec.startStatement().startCall("UFA", "unsafeSetObject").variable(vars.localFrame).string("localIdx").string("result").end(2);
+                        bSpec.startStatement().startCall("UFA", "unsafeSetObject").variable(vars.stackFrame).variable(vars.sp).string("result").end(2);
+
+                        return mSpec;
+                    });
+
+                    b.startStatement().startCall(helperName + "_specialize");
+                    b.variable(vars.stackFrame);
+                    if (ctx.getData().enableYield) {
+                        b.variable(vars.localFrame);
                     }
-
-                    b.tree(createWriteOpcode(vars.bc, vars.bci, combineBoxingBits(ctx, ctx.loadLocalBoxed, kind)));
-
-                    b.end().startElseBlock();
-
-                    if (OperationGeneratorFlags.LOG_LOCAL_LOADS_SPEC) {
-                        b.statement("System.err.printf(\" [load-spec]  local=%d value=%s kind=OBJECT->" + kind + "%n\", localIdx, $frame.getValue(localIdx))");
-                    }
-
-                    b.startStatement().startCall("UFA", "unsafeByteArrayWrite");
+                    b.variable(vars.bc);
+                    b.variable(vars.bci);
+                    b.variable(vars.sp);
                     b.string("localTags");
                     b.string("localIdx");
-                    b.string("(byte) ", kind.toOrdinal());
                     b.end(2);
 
-                    b.startStatement().startCall("UFA", "unsafeSet" + kind.getFrameName()).variable(vars.localFrame).string("localIdx").string("(", kind.getTypeName(), ") result").end(2);
-                    b.startStatement().startCall("UFA", "unsafeSet" + kind.getFrameName()).variable(vars.stackFrame).variable(vars.sp).string("(", kind.getTypeName(), ") result").end(2);
-                    b.returnStatement();
-
-                    b.end(); // if tag
-                    b.end(); // if instanceof
                     b.end(); // try
-                }
-
-                if (kind != FrameKind.OBJECT) {
-                    b.startAssign("Object result").startCall(vars.localFrame, "getValue").string("localIdx").end(2);
-
-                    if (OperationGeneratorFlags.LOG_LOCAL_LOADS_SPEC) {
-                        b.statement("System.err.printf(\" [load-spec]  local=%d value=%s kind=" + kind + "->OBJECT boxed=" + boxed + "%n\", localIdx, $frame.getValue(localIdx))");
-                    }
-
-                    b.startStatement().startCall("UFA", "unsafeByteArrayWrite");
-                    b.string("localTags");
-                    b.string("localIdx");
-                    b.string("(byte) 7");
-                    b.end(2);
-
-                    b.startStatement().startCall("UFA", "unsafeSetObject").variable(vars.localFrame).string("localIdx").string("result").end(2);
-                    b.startStatement().startCall("UFA", "unsafeSetObject").variable(vars.stackFrame).variable(vars.sp).string("result").end(2);
                 }
             } else {
                 if (ctx.getData().enableYield) {

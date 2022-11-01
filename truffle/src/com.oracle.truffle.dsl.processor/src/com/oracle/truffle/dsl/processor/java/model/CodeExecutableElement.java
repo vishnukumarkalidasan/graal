@@ -221,6 +221,10 @@ public class CodeExecutableElement extends CodeElement<Element> implements Execu
         parameters.add(parameter);
     }
 
+    public void addParameter(TypeMirror pType, String pName) {
+        parameters.add(new CodeVariableElement(pType, pName));
+    }
+
     public void addThrownType(TypeMirror thrownType) {
         throwables.add(thrownType);
     }

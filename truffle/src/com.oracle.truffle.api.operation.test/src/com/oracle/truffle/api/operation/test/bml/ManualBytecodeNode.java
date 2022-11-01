@@ -40,20 +40,27 @@
  */
 package com.oracle.truffle.api.operation.test.bml;
 
+import static com.oracle.truffle.api.operation.test.bml.BaseBytecodeNode.OP_CONST;
+import static com.oracle.truffle.api.operation.test.bml.BaseBytecodeNode.OP_JUMP_FALSE;
+import static com.oracle.truffle.api.operation.test.bml.BaseBytecodeNode.OP_LD_LOC;
+import static com.oracle.truffle.api.operation.test.bml.BaseBytecodeNode.OP_LESS;
+import static com.oracle.truffle.api.operation.test.bml.BaseBytecodeNode.OP_MOD;
+
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.HostCompilerDirectives.BytecodeInterpreterSwitch;
-import com.oracle.truffle.api.dsl.GeneratedBy;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleSafepoint;
+import com.oracle.truffle.api.dsl.GeneratedBy;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.impl.UnsafeFrameAccess;
 import com.oracle.truffle.api.nodes.BytecodeOSRNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.RootNode;
 
 public class ManualBytecodeNode extends BaseBytecodeNode {
@@ -267,6 +274,352 @@ class ManualUnsafeBytecodeNode extends BaseBytecodeNode {
     }
 }
 
+@GeneratedBy(ManualUnsafeSuperinstructionBytecodeNode.class) // needed for UFA
+class ManualUnsafeSuperinstructionBytecodeNode extends BaseBytecodeNode {
+    protected ManualUnsafeSuperinstructionBytecodeNode(TruffleLanguage<?> language, FrameDescriptor frameDescriptor, short[] bc) {
+        super(language, frameDescriptor, bc);
+    }
+
+    private static final UnsafeFrameAccess UFA = UnsafeFrameAccess.lookup();
+
+    @Override
+    @BytecodeInterpreterSwitch
+    @ExplodeLoop(kind = LoopExplosionKind.MERGE_EXPLODE)
+    protected Object executeAt(VirtualFrame frame, int startBci, int startSp) {
+        short[] localBc = bc;
+        int bci = startBci;
+        int sp = startSp;
+
+        Counter loopCounter = new Counter();
+
+        frame.getArguments();
+
+        loop: while (true) {
+            short opcode = UFA.unsafeShortArrayRead(localBc, bci);
+            CompilerAsserts.partialEvaluationConstant(opcode);
+            switch (opcode) {
+                // ( -- )
+                case OP_JUMP: {
+                    int nextBci = UFA.unsafeShortArrayRead(localBc, bci + 1);
+                    CompilerAsserts.partialEvaluationConstant(nextBci);
+                    if (nextBci <= bci) {
+                        Object result = backwardsJumpCheck(frame, sp, loopCounter, nextBci);
+                        if (result != null) {
+                            return result;
+                        }
+                    }
+                    bci = nextBci;
+                    continue loop;
+                }
+                // (i1 i2 -- i3)
+                case OP_ADD: {
+                    int lhs = UFA.unsafeGetInt(frame, sp - 2);
+                    int rhs = UFA.unsafeGetInt(frame, sp - 1);
+                    UFA.unsafeSetInt(frame, sp - 2, lhs + rhs);
+                    sp -= 1;
+                    bci += 1;
+                    continue loop;
+                }
+                // (i1 i2 -- i3)
+                case OP_MOD: {
+                    int lhs = UFA.unsafeGetInt(frame, sp - 2);
+                    int rhs = UFA.unsafeGetInt(frame, sp - 1);
+                    UFA.unsafeSetInt(frame, sp - 2, lhs % rhs);
+                    sp -= 1;
+                    bci += 1;
+                    continue loop;
+                }
+                // ( -- i)
+                case OP_CONST: {
+                    UFA.unsafeSetInt(frame, sp, (UFA.unsafeShortArrayRead(localBc, bci + 2) << 16) | (UFA.unsafeShortArrayRead(localBc, bci + 1) & 0xffff));
+                    sp += 1;
+                    bci += 3;
+                    continue loop;
+                }
+                // (b -- )
+                case OP_JUMP_FALSE: {
+                    boolean cond = UFA.unsafeGetBoolean(frame, sp - 1);
+                    sp -= 1;
+                    if (!cond) {
+                        bci = UFA.unsafeShortArrayRead(localBc, bci + 1);
+                        continue loop;
+                    } else {
+                        bci += 2;
+                        continue loop;
+                    }
+                }
+                // (i1 i2 -- b)
+                case OP_LESS: {
+                    int lhs = UFA.unsafeGetInt(frame, sp - 2);
+                    int rhs = UFA.unsafeGetInt(frame, sp - 1);
+                    UFA.unsafeSetBoolean(frame, sp - 2, lhs < rhs);
+                    sp -= 1;
+                    bci += 1;
+                    continue loop;
+                }
+                // (i -- )
+                case OP_RETURN: {
+                    return UFA.unsafeGetInt(frame, sp - 1);
+                }
+                // (i -- )
+                case OP_ST_LOC: {
+                    UFA.unsafeCopyPrimitive(frame, sp - 1, UFA.unsafeShortArrayRead(localBc, bci + 1));
+                    sp -= 1;
+                    bci += 2;
+                    continue loop;
+                }
+                // ( -- i)
+                case OP_LD_LOC: {
+                    UFA.unsafeCopyPrimitive(frame, UFA.unsafeShortArrayRead(localBc, bci + 1), sp);
+                    sp += 1;
+                    bci += 2;
+                    continue loop;
+                }
+
+                case OP_SI_0: {
+                    // ld_loc
+                    {
+                        UFA.unsafeCopyPrimitive(frame, UFA.unsafeShortArrayRead(localBc, bci + 1), sp);
+                        sp += 1;
+                        bci += 2;
+                    }
+                    // const
+                    {
+                        UFA.unsafeSetInt(frame, sp, (UFA.unsafeShortArrayRead(localBc, bci + 2) << 16) | (UFA.unsafeShortArrayRead(localBc, bci + 1) & 0xffff));
+                        sp += 1;
+                        bci += 3;
+                    }
+                    // mod
+                    {
+                        int lhs = UFA.unsafeGetInt(frame, sp - 2);
+                        int rhs = UFA.unsafeGetInt(frame, sp - 1);
+                        UFA.unsafeSetInt(frame, sp - 2, lhs % rhs);
+                        sp -= 1;
+                        bci += 1;
+                    }
+                    // st_loc
+                    {
+                        UFA.unsafeCopyPrimitive(frame, sp - 1, UFA.unsafeShortArrayRead(localBc, bci + 1));
+                        sp -= 1;
+                        bci += 2;
+                    }
+                    continue loop;
+                }
+                case OP_SI_1: {
+                    // ld_loc
+                    {
+                        UFA.unsafeCopyPrimitive(frame, UFA.unsafeShortArrayRead(localBc, bci + 1), sp);
+                        sp += 1;
+                        bci += 2;
+                    }
+                    // const
+                    {
+                        UFA.unsafeSetInt(frame, sp, (UFA.unsafeShortArrayRead(localBc, bci + 2) << 16) | (UFA.unsafeShortArrayRead(localBc, bci + 1) & 0xffff));
+                        sp += 1;
+                        bci += 3;
+                    }
+                    // mod
+                    {
+                        int lhs = UFA.unsafeGetInt(frame, sp - 2);
+                        int rhs = UFA.unsafeGetInt(frame, sp - 1);
+                        UFA.unsafeSetInt(frame, sp - 2, lhs % rhs);
+                        sp -= 1;
+                        bci += 1;
+                    }
+                    // const
+                    {
+                        UFA.unsafeSetInt(frame, sp, (UFA.unsafeShortArrayRead(localBc, bci + 2) << 16) | (UFA.unsafeShortArrayRead(localBc, bci + 1) & 0xffff));
+                        sp += 1;
+                        bci += 3;
+                    }
+                    // less
+                    {
+                        int lhs = UFA.unsafeGetInt(frame, sp - 2);
+                        int rhs = UFA.unsafeGetInt(frame, sp - 1);
+                        UFA.unsafeSetBoolean(frame, sp - 2, lhs < rhs);
+                        sp -= 1;
+                        bci += 1;
+                    }
+                    // jump_false
+                    {
+                        boolean cond = UFA.unsafeGetBoolean(frame, sp - 1);
+                        sp -= 1;
+                        if (!cond) {
+                            bci = UFA.unsafeShortArrayRead(localBc, bci + 1);
+                            continue loop;
+                        } else {
+                            bci += 2;
+                            continue loop;
+                        }
+                    }
+                }
+
+                default:
+                    CompilerDirectives.shouldNotReachHere();
+            }
+        }
+    }
+}
+
+@GeneratedBy(ManualUnsafeWrappedBytecodeNode.class) // needed for UFA
+class ManualUnsafeWrappedBytecodeNode extends BaseBytecodeNode {
+    protected ManualUnsafeWrappedBytecodeNode(TruffleLanguage<?> language, FrameDescriptor frameDescriptor, short[] bc) {
+        super(language, frameDescriptor, bc);
+    }
+
+    private static final UnsafeFrameAccess UFA = UnsafeFrameAccess.lookup();
+
+    @ValueType
+    private static class Tuple2 {
+        @CompilationFinal private final int x0;
+        @CompilationFinal private final int x1;
+
+        Tuple2(int x0, int x1) {
+            this.x0 = x0;
+            this.x1 = x1;
+        }
+    }
+
+    private Tuple2 executeBranch(VirtualFrame frame, int sp, short[] localBc, int bci, Counter loopCounter) {
+        int nextBci = UFA.unsafeShortArrayRead(localBc, bci + 1);
+        CompilerAsserts.partialEvaluationConstant(nextBci);
+        if (nextBci <= bci) {
+            Object result = backwardsJumpCheck(frame, sp, loopCounter, nextBci);
+            if (result != null) {
+                throw new UnsupportedOperationException();
+            }
+        }
+        return new Tuple2(sp, nextBci);
+    }
+
+    private static Tuple2 executeAdd(VirtualFrame frame, int sp, int bci) {
+        int lhs = UFA.unsafeGetInt(frame, sp - 2);
+        int rhs = UFA.unsafeGetInt(frame, sp - 1);
+        UFA.unsafeSetInt(frame, sp - 2, lhs + rhs);
+        return new Tuple2(sp - 1, bci + 1);
+    }
+
+    private static Tuple2 executeMod(VirtualFrame frame, int sp, int bci) {
+        int lhs = UFA.unsafeGetInt(frame, sp - 2);
+        int rhs = UFA.unsafeGetInt(frame, sp - 1);
+        UFA.unsafeSetInt(frame, sp - 2, lhs % rhs);
+        return new Tuple2(sp - 1, bci + 1);
+    }
+
+    private static Tuple2 executeConst(VirtualFrame frame, int sp, short[] bc, int bci) {
+        UFA.unsafeSetInt(frame, sp, (UFA.unsafeShortArrayRead(bc, bci + 2) << 16) | (UFA.unsafeShortArrayRead(bc, bci + 1) & 0xffff));
+        return new Tuple2(sp + 1, bci + 3);
+    }
+
+    private static Tuple2 executeBranchFalse(VirtualFrame frame, int sp, short[] bc, int bci) {
+        boolean cond = UFA.unsafeGetBoolean(frame, sp - 1);
+        if (!cond) {
+            return new Tuple2(sp - 1, UFA.unsafeShortArrayRead(bc, bci + 1));
+        } else {
+            return new Tuple2(sp - 1, bci + 2);
+        }
+    }
+
+    private static Tuple2 executeLess(VirtualFrame frame, int sp, int bci) {
+        int lhs = UFA.unsafeGetInt(frame, sp - 2);
+        int rhs = UFA.unsafeGetInt(frame, sp - 1);
+        UFA.unsafeSetBoolean(frame, sp - 2, lhs < rhs);
+        return new Tuple2(sp - 1, bci + 1);
+    }
+
+    private static Tuple2 executeStoreLoc(VirtualFrame frame, int sp, short[] bc, int bci) {
+        UFA.unsafeCopyPrimitive(frame, sp - 1, UFA.unsafeShortArrayRead(bc, bci + 1));
+        return new Tuple2(sp - 1, bci + 2);
+    }
+
+    private static Tuple2 executeLoadLoc(VirtualFrame frame, int sp, short[] bc, int bci) {
+        UFA.unsafeCopyPrimitive(frame, UFA.unsafeShortArrayRead(bc, bci + 1), sp);
+        return new Tuple2(sp + 1, bci + 2);
+    }
+
+    @Override
+    @BytecodeInterpreterSwitch
+    @ExplodeLoop(kind = LoopExplosionKind.MERGE_EXPLODE)
+    protected Object executeAt(VirtualFrame frame, int startBci, int startSp) {
+        short[] localBc = bc;
+        int bci = startBci;
+        int sp = startSp;
+
+        Counter loopCounter = new Counter();
+
+        frame.getArguments();
+
+        loop: while (true) {
+            short opcode = UFA.unsafeShortArrayRead(localBc, bci);
+            CompilerAsserts.partialEvaluationConstant(opcode);
+            switch (opcode) {
+                // ( -- )
+                case OP_JUMP: {
+                    Tuple2 t = executeBranch(frame, sp, bc, bci, loopCounter);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // (i1 i2 -- i3)
+                case OP_ADD: {
+                    Tuple2 t = executeAdd(frame, sp, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // (i1 i2 -- i3)
+                case OP_MOD: {
+                    Tuple2 t = executeMod(frame, sp, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // ( -- i)
+                case OP_CONST: {
+                    Tuple2 t = executeConst(frame, sp, localBc, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // (b -- )
+                case OP_JUMP_FALSE: {
+                    Tuple2 t = executeBranchFalse(frame, sp, localBc, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // (i1 i2 -- b)
+                case OP_LESS: {
+                    Tuple2 t = executeLess(frame, sp, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // (i -- )
+                case OP_RETURN: {
+                    return UFA.unsafeGetInt(frame, sp - 1);
+                }
+                // (i -- )
+                case OP_ST_LOC: {
+                    Tuple2 t = executeStoreLoc(frame, sp, localBc, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                // ( -- i)
+                case OP_LD_LOC: {
+                    Tuple2 t = executeLoadLoc(frame, sp, localBc, bci);
+                    sp = t.x0;
+                    bci = t.x1;
+                    continue loop;
+                }
+                default:
+                    CompilerDirectives.shouldNotReachHere();
+            }
+        }
+    }
+}
+
 abstract class BaseBytecodeNode extends RootNode implements BytecodeOSRNode {
 
     protected BaseBytecodeNode(TruffleLanguage<?> language, FrameDescriptor frameDescriptor, short[] bc) {
@@ -285,6 +638,8 @@ abstract class BaseBytecodeNode extends RootNode implements BytecodeOSRNode {
     static final short OP_ST_LOC = 7;
     static final short OP_LD_LOC = 8;
     static final short OP_MOD = 9;
+    static final short OP_SI_0 = 10;
+    static final short OP_SI_1 = 11;
 
     @CompilerDirectives.ValueType
     protected static class Counter {

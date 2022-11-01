@@ -45,6 +45,7 @@ import java.util.Arrays;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.HostCompilerDirectives.InliningCutoff;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
@@ -242,26 +243,31 @@ public final class FrameWithoutBoxing implements VirtualFrame, MaterializedFrame
     }
 
     @SuppressWarnings({"unchecked", "unused"})
+    @InliningCutoff
     private static <T> T unsafeCast(Object value, Class<T> type, boolean condition, boolean nonNull, boolean exact) {
         return (T) value;
     }
 
     @SuppressWarnings("unused")
+    @InliningCutoff
     private static long unsafeGetLong(Object receiver, long offset, boolean condition, Object locationIdentity) {
         return UNSAFE.getLong(receiver, offset);
     }
 
     @SuppressWarnings("unused")
+    @InliningCutoff
     private static Object unsafeGetObject(Object receiver, long offset, boolean condition, Object locationIdentity) {
         return UNSAFE.getObject(receiver, offset);
     }
 
     @SuppressWarnings("unused")
+    @InliningCutoff
     private static void unsafePutLong(Object receiver, long offset, long value, Object locationIdentity) {
         UNSAFE.putLong(receiver, offset, value);
     }
 
     @SuppressWarnings("unused")
+    @InliningCutoff
     private static void unsafePutObject(Object receiver, long offset, Object value, Object locationIdentity) {
         UNSAFE.putObject(receiver, offset, value);
     }
@@ -593,6 +599,7 @@ public final class FrameWithoutBoxing implements VirtualFrame, MaterializedFrame
         getIndexedTags()[slot] = tag;
     }
 
+    @InliningCutoff
     private void unsafeVerifyIndexedSet(int slot, byte tag) {
         assert getIndexedTags()[slot] != STATIC_TAG : UNEXPECTED_NON_STATIC_WRITE;
         UNSAFE.putByte(getIndexedTags(), Unsafe.ARRAY_BYTE_BASE_OFFSET + slot * Unsafe.ARRAY_BYTE_INDEX_SCALE, tag);
@@ -625,6 +632,7 @@ public final class FrameWithoutBoxing implements VirtualFrame, MaterializedFrame
         return tag;
     }
 
+    @InliningCutoff
     private byte unsafeGetIndexedTag(int slot) {
         assert getIndexedTags()[slot] >= 0;
         byte tag = UNSAFE.getByte(getIndexedTags(), Unsafe.ARRAY_BYTE_BASE_OFFSET + slot * Unsafe.ARRAY_BYTE_INDEX_SCALE);

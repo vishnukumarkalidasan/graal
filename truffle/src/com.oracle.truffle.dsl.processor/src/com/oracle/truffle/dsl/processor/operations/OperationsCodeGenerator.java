@@ -531,7 +531,7 @@ public class OperationsCodeGenerator extends CodeTypeElementFactory<OperationsDa
         typOperationNodeImpl.add(createSetResultUnboxed());
         typOperationNodeImpl.add(createLoadVariadicArguments());
         typOperationNodeImpl.add(createSetResultBoxedImpl());
-        typOperationNodeImpl.add(createCounter());
+        typOperationNodeImpl.addAll(createHelperClasses());
         if (m.enableYield) {
             typOperationNodeImpl.add(createContinuationLocationImpl(typOperationNodeImpl));
             typOperationNodeImpl.add(createContinuationRoot(typOperationNodeImpl));
@@ -1855,7 +1855,7 @@ public class OperationsCodeGenerator extends CodeTypeElementFactory<OperationsDa
         baseClass.add(createSetResultBoxedImpl());
         for (TypeKind kind : m.getBoxingEliminatedTypes()) {
             FrameKind frameKind = FrameKind.valueOfPrimitive(kind);
-            baseClass.add(createExpectPrimitive(frameKind));
+            baseClass.addAll(createExpectPrimitive(frameKind));
             // baseClass.add(createStoreLocalCheck(frameKind));
         }
 
@@ -2034,11 +2034,16 @@ public class OperationsCodeGenerator extends CodeTypeElementFactory<OperationsDa
         }
     }
 
-    private CodeTypeElement createCounter() {
+    private List<CodeTypeElement> createHelperClasses() {
         CodeTypeElement typ = new CodeTypeElement(MOD_PRIVATE_STATIC_FINAL, ElementKind.CLASS, null, "Counter");
         typ.add(new CodeVariableElement(context.getType(int.class), "count"));
 
-        return typ;
+        CodeTypeElement tTuple = new CodeTypeElement(MOD_PRIVATE_STATIC_FINAL, ElementKind.CLASS, null, "Tuple2");
+        tTuple.add(new CodeVariableElement(context.getType(int.class), "x0"));
+        tTuple.add(new CodeVariableElement(context.getType(int.class), "x1"));
+        tTuple.add(GeneratorUtils.createConstructorUsingFields(Set.of(), tTuple));
+
+        return List.of(typ, tTuple);
     }
 
     private CodeExecutableElement createEndOperation(CodeTypeElement typBuilder, BuilderVariables vars, Operation op) {
@@ -2558,7 +2563,7 @@ public class OperationsCodeGenerator extends CodeTypeElementFactory<OperationsDa
         return mExpectObject;
     }
 
-    private CodeExecutableElement createExpectPrimitive(FrameKind kind) {
+    private List<CodeExecutableElement> createExpectPrimitive(FrameKind kind) {
         CodeExecutableElement mExpectPrimitive = new CodeExecutableElement(MOD_PROTECTED_STATIC, kind.getType(), "expect" + kind.getFrameName());
         mExpectPrimitive.addParameter(new CodeVariableElement(types.VirtualFrame, "frame"));
         mExpectPrimitive.addParameter(new CodeVariableElement(context.getType(int.class), "slot"));
@@ -2575,29 +2580,50 @@ public class OperationsCodeGenerator extends CodeTypeElementFactory<OperationsDa
         }
 
         b.startIf().string("bciOffset == 0").end().startBlock();
+        {
 
-        b.startAssign("Object value").startCall("UFA", "unsafeUncheckedGetObject");
-        b.string("frame");
-        b.string("slot");
-        b.end(2);
+            b.startAssign("Object value").startCall("UFA", "unsafeUncheckedGetObject");
+            b.string("frame");
+            b.string("slot");
+            b.end(2);
 
-        b.startIf().string("value instanceof " + kind.getTypeNameBoxed()).end().startBlock();
-        b.startReturn().string("(", kind.getTypeName(), ") value").end();
-        b.end().startElseBlock();
-        b.tree(GeneratorUtils.createTransferToInterpreterAndInvalidate());
-        b.startThrow().startNew(types.UnexpectedResultException).string("value").end(2);
+            b.startIf().string("value instanceof " + kind.getTypeNameBoxed()).end().startBlock();
+            {
+                b.startReturn().string("(", kind.getTypeName(), ") value").end();
+            }
+            b.end().startElseBlock();
+            {
+                b.tree(GeneratorUtils.createTransferToInterpreterAndInvalidate());
+                b.startThrow().startNew(types.UnexpectedResultException).string("value").end(2);
+            }
+            b.end();
+
+        }
         b.end();
 
-        b.end().startElseBlock();
-
-        b.startSwitch().startCall("UFA", "unsafeGetTag").string("frame").string("slot").end(2).startBlock();
-
-        b.startCase().string(kind.toOrdinal()).end().startCaseBlock();
-        b.startReturn().startCall("UFA", "unsafeUncheckedGet" + kind.getFrameName()).string("frame").string("slot").end(2);
+        b.startTryBlock();
+        {
+            b.startReturn().startCall("UFA", "unsafeGet" + kind.getFrameName()).string("frame").string("slot").end(2);
+        }
+        b.end().startCatchBlock(types.FrameSlotTypeException, "ex");
+        {
+            b.tree(GeneratorUtils.createTransferToInterpreterAndInvalidate());
+            b.startReturn().startCall("expect" + kind.getFrameName() + "Specialize");
+            b.string("frame").string("slot").string("bc").string("bci").string("bciOffset");
+            b.end(2);
+        }
         b.end();
 
-        b.startCase().string(FrameKind.OBJECT.toOrdinal()).end().startCaseBlock();
-        b.tree(GeneratorUtils.createTransferToInterpreterAndInvalidate());
+        CodeExecutableElement mExpectPrimitiveSpecialize = new CodeExecutableElement(MOD_PROTECTED_STATIC, kind.getType(), "expect" + kind.getFrameName() + "Specialize");
+        mExpectPrimitiveSpecialize.addParameter(new CodeVariableElement(types.VirtualFrame, "frame"));
+        mExpectPrimitiveSpecialize.addParameter(new CodeVariableElement(context.getType(int.class), "slot"));
+        mExpectPrimitiveSpecialize.addParameter(new CodeVariableElement(context.getType(short[].class), "bc"));
+        mExpectPrimitiveSpecialize.addParameter(new CodeVariableElement(context.getType(int.class), "bci"));
+        mExpectPrimitiveSpecialize.addParameter(new CodeVariableElement(context.getType(int.class), "bciOffset"));
+        mExpectPrimitiveSpecialize.addThrownType(types.UnexpectedResultException);
+
+        b = mExpectPrimitiveSpecialize.createBuilder();
+
         b.declaration("Object", "value", "UFA.unsafeUncheckedGetObject(frame, slot)");
 
         b.startIf().string("value instanceof " + kind.getTypeNameBoxed()).end().startBlock();
@@ -2605,19 +2631,10 @@ public class OperationsCodeGenerator extends CodeTypeElementFactory<OperationsDa
         b.startReturn().string("(", kind.getTypeName(), ") value").end();
         b.end(); // if
 
-        b.statement("break");
-        b.end(); // case
-
-        b.end();// switch
-
-        b.tree(GeneratorUtils.createTransferToInterpreterAndInvalidate());
-
         b.startStatement().startCall("setResultBoxedImpl").string("bc").string("bci - bciOffset").string("0").end(2);
         b.startThrow().startNew(types.UnexpectedResultException).string("frame.getValue(slot)").end(2);
 
-        b.end();// else
-
-        return mExpectPrimitive;
+        return List.of(mExpectPrimitive, mExpectPrimitiveSpecialize);
     }
 
     private CodeExecutableElement createStoreLocalCheck(FrameKind kind) {

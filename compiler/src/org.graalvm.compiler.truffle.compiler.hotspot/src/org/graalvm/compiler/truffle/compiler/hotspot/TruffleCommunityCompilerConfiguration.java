@@ -30,6 +30,7 @@ import org.graalvm.compiler.nodes.graphbuilderconf.GraphBuilderConfiguration.Plu
 import org.graalvm.compiler.options.OptionValues;
 import org.graalvm.compiler.truffle.compiler.phases.TruffleHostInliningPhase;
 import org.graalvm.compiler.truffle.compiler.phases.TruffleInjectImmutableFrameFieldsPhase;
+import org.graalvm.compiler.truffle.compiler.substitutions.TruffleUnsafeHostGraphBuilderPlugins;
 
 public final class TruffleCommunityCompilerConfiguration extends CommunityCompilerConfiguration {
 
@@ -45,6 +46,6 @@ public final class TruffleCommunityCompilerConfiguration extends CommunityCompil
     public void registerGraphBuilderPlugins(Plugins plugins, OptionValues options) {
         super.registerGraphBuilderPlugins(plugins, options);
         TruffleHostInliningPhase.installInlineInvokePlugin(plugins, options);
+        TruffleUnsafeHostGraphBuilderPlugins.registerInvocationPlugins(plugins.getInvocationPlugins());
     }
-
 }

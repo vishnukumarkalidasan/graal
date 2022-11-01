@@ -128,7 +128,7 @@ public class BranchInstruction extends Instruction {
                     b.startIf().string("osrResult != null").end().startBlock(); // {
                     // todo: check if this will overwrite a local in reused frames
                     b.startStatement().variable(vars.stackFrame).string(".setObject(0, osrResult)").end();
-                    b.startReturn().string("0x0000ffff").end();
+                    b.startReturn().string("new Tuple2(0, -1)").end();
                     b.end(); // }
 
                     b.end(); // }
@@ -142,7 +142,7 @@ public class BranchInstruction extends Instruction {
                 b.startIf().string("uncachedExecuteCount.count <= 0").end().startBlock();
 
                 b.statement("$this.changeInterpreters(COMMON_EXECUTE)");
-                b.statement("return ($sp << 16) | targetBci");
+                b.statement("return new Tuple2($sp, targetBci)");
 
                 b.end();
             }

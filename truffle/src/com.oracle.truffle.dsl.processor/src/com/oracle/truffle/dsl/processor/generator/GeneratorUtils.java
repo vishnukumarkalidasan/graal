@@ -181,6 +181,9 @@ public class GeneratorUtils {
     }
 
     public static CodeExecutableElement createConstructorUsingFields(Set<Modifier> modifiers, CodeTypeElement clazz) {
+        if (clazz.getSuperclass() == null) {
+            return createConstructorUsingFields(modifiers, clazz, null);
+        }
         TypeElement superClass = fromTypeMirror(clazz.getSuperclass());
         ExecutableElement constructor = findConstructor(superClass);
         return createConstructorUsingFields(modifiers, clazz, constructor);
