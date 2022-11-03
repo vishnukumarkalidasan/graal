@@ -12,7 +12,6 @@ import org.graalvm.compiler.nodes.calc.AddNode;
 import org.graalvm.compiler.nodes.calc.CompareNode;
 import org.graalvm.compiler.nodes.calc.MulNode;
 import org.graalvm.compiler.nodes.extended.GuardedUnsafeLoadNode;
-import org.graalvm.compiler.nodes.extended.NullCheckNode;
 import org.graalvm.compiler.nodes.extended.RawLoadNode;
 import org.graalvm.compiler.nodes.extended.RawStoreNode;
 import org.graalvm.compiler.nodes.graphbuilderconf.GraphBuilderContext;
@@ -21,14 +20,10 @@ import org.graalvm.compiler.nodes.graphbuilderconf.InvocationPlugin.RequiredInvo
 import org.graalvm.compiler.nodes.graphbuilderconf.InvocationPlugins;
 import org.graalvm.compiler.nodes.graphbuilderconf.InvocationPlugins.Registration;
 import org.graalvm.compiler.nodes.java.LoadFieldNode;
-import org.graalvm.compiler.truffle.compiler.nodes.ObjectLocationIdentity;
 import org.graalvm.word.LocationIdentity;
 
 import jdk.vm.ci.meta.JavaKind;
-import jdk.vm.ci.meta.ResolvedJavaField;
 import jdk.vm.ci.meta.ResolvedJavaMethod;
-import jdk.vm.ci.meta.ResolvedJavaType;
-import sun.misc.Unsafe;
 
 public class TruffleUnsafeHostGraphBuilderPlugins {
 
@@ -76,7 +71,9 @@ public class TruffleUnsafeHostGraphBuilderPlugins {
             @Override
             public boolean apply(GraphBuilderContext b, ResolvedJavaMethod targetMethod, Receiver receiver, ValueNode slot, ValueNode tag) {
                 ValueNode indexedTags = b.add(createLoadIndexedTags(b, receiver));
-                b.add(new RawStoreNode(indexedTags, createIndex(slot, Unsafe.ARRAY_BYTE_BASE_OFFSET, Unsafe.ARRAY_BYTE_INDEX_SCALE), tag, JavaKind.Byte, TAGS_LOCATION_IDENTITY, false,
+                int byteArrayBase = b.getMetaAccess().getArrayBaseOffset(JavaKind.Byte);
+                int byteArrayIndexScale = b.getMetaAccess().getArrayIndexScale(JavaKind.Byte);
+                b.add(new RawStoreNode(indexedTags, createIndex(slot, byteArrayBase, byteArrayIndexScale), tag, JavaKind.Byte, TAGS_LOCATION_IDENTITY, false,
                                 MemoryOrderMode.PLAIN));
                 return true;
             }
@@ -85,7 +82,10 @@ public class TruffleUnsafeHostGraphBuilderPlugins {
             @Override
             public boolean apply(GraphBuilderContext b, ResolvedJavaMethod targetMethod, Receiver receiver, ValueNode slot) {
                 ValueNode indexedTags = b.add(createLoadIndexedTags(b, receiver));
-                b.addPush(JavaKind.Byte, new RawLoadNode(indexedTags, createIndex(slot, Unsafe.ARRAY_BYTE_BASE_OFFSET, Unsafe.ARRAY_BYTE_INDEX_SCALE), JavaKind.Byte, TAGS_LOCATION_IDENTITY, false,
+                int byteArrayBase = b.getMetaAccess().getArrayBaseOffset(JavaKind.Byte);
+                int byteArrayIndexScale = b.getMetaAccess().getArrayIndexScale(JavaKind.Byte);
+
+                b.addPush(JavaKind.Byte, new RawLoadNode(indexedTags, createIndex(slot, byteArrayBase, byteArrayIndexScale), JavaKind.Byte, TAGS_LOCATION_IDENTITY, false,
                                 MemoryOrderMode.PLAIN));
                 return true;
             }
