@@ -90,8 +90,9 @@ public class AArch64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implem
 
     @Override
     protected Variable emitAdd(LIRKind resultKind, Value a, Value b, boolean setFlags) {
-        if (isNumericInteger(a.getPlatformKind())) {
+	if (isNumericInteger(a.getPlatformKind())) {
             AArch64ArithmeticOp op = setFlags ? AArch64ArithmeticOp.ADDS : AArch64ArithmeticOp.ADD;
+	    System.err.println("vishnu debug emitAdd");
             return emitBinary(resultKind, op, true, a, b);
         } else {
             assert !setFlags : "Cannot set flags on floating point arithmetic";

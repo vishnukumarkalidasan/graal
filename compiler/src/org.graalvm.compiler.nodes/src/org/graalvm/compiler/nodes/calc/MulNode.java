@@ -60,6 +60,7 @@ public class MulNode extends BinaryArithmeticNode<Mul> implements NarrowableArit
     }
 
     public static ValueNode create(ValueNode x, ValueNode y, NodeView view) {
+	System.out.println("Vishnu create mul");
         BinaryOp<Mul> op = ArithmeticOpTable.forStamp(x.stamp(view)).getMul();
         Stamp stamp = op.foldStamp(x.stamp(view), y.stamp(view));
         ConstantNode tryConstantFold = tryConstantFold(op, x, y, stamp, view);
@@ -119,6 +120,7 @@ public class MulNode extends BinaryArithmeticNode<Mul> implements NarrowableArit
     }
 
     public static ValueNode canonical(Stamp stamp, ValueNode forX, long i, NodeView view) {
+	System.out.println("Vishnu canonical mul");
         if (i == 0) {
             return ConstantNode.forIntegerStamp(stamp, 0);
         } else if (i == 1) {
@@ -172,5 +174,6 @@ public class MulNode extends BinaryArithmeticNode<Mul> implements NarrowableArit
             op2 = tmp;
         }
         nodeValueMap.setResult(this, gen.emitMul(op1, op2, false));
+	System.out.println("Vishnu generate mul");
     }
 }

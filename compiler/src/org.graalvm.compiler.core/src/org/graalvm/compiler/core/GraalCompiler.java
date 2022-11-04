@@ -143,6 +143,7 @@ public class GraalCompiler {
             try (DebugContext.Scope s0 = debug.scope("GraalCompiler", r.graph, r.providers.getCodeCache()); DebugCloseable a = CompilerTimer.start(debug)) {
                 emitFrontEnd(r.providers, r.backend, r.graph, r.graphBuilderSuite, r.optimisticOpts, r.profilingInfo, r.suites);
                 r.backend.emitBackEnd(r.graph, null, r.installedCodeOwner, r.compilationResult, r.factory, null, r.lirSuites);
+		System.out.println("Vishnu compiler machine code generation...");
                 if (r.verifySourcePositions) {
                     assert r.graph.verifySourcePositions(true);
                 }

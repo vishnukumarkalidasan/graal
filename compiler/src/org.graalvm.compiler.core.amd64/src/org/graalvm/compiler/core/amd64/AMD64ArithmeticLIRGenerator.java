@@ -154,6 +154,13 @@ public class AMD64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implemen
     private static final RegisterValue RCX_I = AMD64.rcx.asValue(LIRKind.value(AMD64Kind.DWORD));
 
     public AMD64ArithmeticLIRGenerator(AllocatableValue nullRegisterValue) {
+	    System.out.println("AMD64ArithmeticLIRGenerator trace");
+       StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         this.nullRegisterValue = nullRegisterValue;
     }
 
@@ -301,6 +308,7 @@ public class AMD64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implemen
     @Override
     public Variable emitAdd(LIRKind resultKind, Value a, Value b, boolean setFlags) {
         boolean isAvx = supportAVX();
+	System.err.println("vishnu: emitAdd");
         switch ((AMD64Kind) a.getPlatformKind()) {
             case DWORD:
                 if (isJavaConstant(b) && !setFlags) {

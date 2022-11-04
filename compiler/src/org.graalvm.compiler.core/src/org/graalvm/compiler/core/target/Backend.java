@@ -67,6 +67,13 @@ public abstract class Backend implements TargetProvider, ValueKindFactory<LIRKin
     public static final ForeignCallDescriptor ARITHMETIC_DREM = new ForeignCallDescriptor("arithmeticDrem", double.class, double.class, double.class);
 
     protected Backend(Providers providers) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of Backend");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }	
         this.providers = providers;
         this.codeInstallationTaskFactories = new ArrayList<>();
     }

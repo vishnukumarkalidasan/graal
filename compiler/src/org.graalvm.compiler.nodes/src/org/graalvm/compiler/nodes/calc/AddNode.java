@@ -199,5 +199,13 @@ public class AddNode extends BinaryArithmeticNode<Add> implements NarrowableArit
             op2 = tmp;
         }
         nodeValueMap.setResult(this, gen.emitAdd(op1, op2, false));
+	System.out.println("vishnu debug generate add " + getX() + "+" + getY());
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace using StackTraceElement in Java");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
     }
 }

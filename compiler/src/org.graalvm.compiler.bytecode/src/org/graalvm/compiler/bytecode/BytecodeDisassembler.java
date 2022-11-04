@@ -368,6 +368,7 @@ public class BytecodeDisassembler {
         if (method.getCode() == null) {
             return -1;
         }
+	
         BytecodeStream stream = new BytecodeStream(method.getCode());
         int opcode = stream.currentBC();
         while (opcode != Bytecodes.END) {

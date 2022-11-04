@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Arrays;
 
 import org.graalvm.compiler.api.runtime.GraalJVMCICompiler;
 import org.graalvm.compiler.code.CompilationResult;
@@ -117,6 +118,7 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
             }
 
             ResolvedJavaMethod method = request.getMethod();
+	    System.err.println("vishnu DEBUG: " + method.getName() + " bytecode: " + Arrays.toString(method.getCode()));
 
             if (graalRuntime.isBootstrapping()) {
                 if (DebugOptions.BootstrapInitializeOnly.getValue(initialOptions)) {
@@ -230,6 +232,7 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
             ProfilingInfo profile = profilingInfo;
             profile.setCompilerIRSize(StructuredGraph.class, graph.getNodeCount());
         }
+	System.err.println("vishnu: " + method.getName() + " machine code: " + Arrays.toString(result.getTargetCode()));
 
         return result;
     }

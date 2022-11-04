@@ -168,6 +168,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         snippetCounterGroups = GraalOptions.SnippetCounters.getValue(options) ? new ArrayList<>() : null;
         CompilerConfiguration compilerConfiguration = compilerConfigurationFactory.createCompilerConfiguration();
         compilerConfigurationName = compilerConfigurationFactory.getName();
+	System.out.println("compiler configuration factory: "+compilerConfigurationName);
 
         if (IS_AOT) {
             management = AOT_INJECTED_MANAGEMENT == null ? null : AOT_INJECTED_MANAGEMENT.get();
@@ -187,6 +188,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
             if (factory == null) {
                 throw new GraalError("No backend available for host architecture \"%s\"", hostArchitecture);
             }
+	    System.out.println("backend available for host architecture \"%s\" " +  hostArchitecture);
             hostBackend = registerBackend(factory.createBackend(this, compilerConfiguration, jvmciRuntime, null));
         }
 
