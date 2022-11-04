@@ -1,0 +1,30 @@
+java \
+  --module-path=/home/vishnu/Project/graal/sdk/mxbuild/modules/org.graalvm.graal_sdk.jar:/home/vishnu/Project/graal/truffle/mxbuild/modules/com.oracle.truffle.truffle_api.jar \
+  --upgrade-module-path=/home/vishnu/Project/graal/compiler/mxbuild/modules/jdk.internal.vm.compiler.jar \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+EnableJVMCI \
+  -XX:+UseJVMCICompiler \
+  -XX:-TieredCompilation \
+  -XX:+PrintCompilation \
+  -XX:CompileOnly=HelloWorld::sayHello \
+  Hello
+
+java \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+EnableJVMCI \
+  -XX:+UseJVMCICompiler \
+  -XX:-TieredCompilation \
+  -XX:+PrintCompilation \
+  -XX:+UnlockDiagnosticVMOptions \
+  -XX:+PrintAssembly \
+-XX:CompileOnly=HelloWorld::sayHello \
+  --vm.Dgraal.Dump --vm.Dgraal.PrintBackendCFG=true \
+
+
+successfull build versions:
+--------------------------
+
+vm-20.3.6
+mx 5.273.0
+openjdk-8u302+06-jvmci-22.0-b01-fastdebug-linux-amd64.tar.gz
+install cmake
