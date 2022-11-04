@@ -70,6 +70,7 @@ import org.graalvm.compiler.core.common.GraalOptions;
 import org.graalvm.compiler.core.common.spi.ForeignCallsProvider;
 import org.graalvm.compiler.core.common.spi.MetaAccessExtensionProvider;
 import org.graalvm.compiler.core.riscv64.RISCV64ReflectionUtil;
+import org.graalvm.compiler.core.riscv64.ShadowedRISCV64;
 import org.graalvm.compiler.debug.DebugCloseable;
 import org.graalvm.compiler.debug.DebugContext;
 import org.graalvm.compiler.debug.DebugContext.Builder;
@@ -493,7 +494,6 @@ public class NativeImageGenerator {
             int deoptScratchSpace = 2 * 8; // Space for two 64-bit registers: r0 and v0.
             return new SubstrateTargetDescription(architecture, true, 16, 0, deoptScratchSpace, runtimeCheckedFeatures);
         } else if (includedIn(platform, Platform.RISCV64.class)) {
-            Class<?> riscv64 = RISCV64ReflectionUtil.getArch(false);
             Class<?> riscv64CPUFeature = RISCV64ReflectionUtil.lookupClass(false, RISCV64ReflectionUtil.featureClass);
             Architecture architecture;
             if (NativeImageOptions.NativeArchitecture.getValue()) {
@@ -508,7 +508,7 @@ public class NativeImageGenerator {
                 RISCV64ReflectionUtil.invokeMethod(addAll, features,
                                 RISCV64ReflectionUtil.invokeMethod(parseCSVtoEnum, null, riscv64CPUFeature, NativeImageOptions.CPUFeatures.getValue().values(), riscv64CPUFeature.getEnumConstants()));
 
-                architecture = (Architecture) ReflectionUtil.newInstance(ReflectionUtil.lookupConstructor(riscv64, EnumSet.class, EnumSet.class), features,
+                architecture = (Architecture) ReflectionUtil.newInstance(ReflectionUtil.lookupConstructor(ShadowedRISCV64.riscv64, EnumSet.class, EnumSet.class), features,
                                 RISCV64CPUFeatureAccess.enabledRISCV64Flags());
             }
             Method getFeatures = RISCV64ReflectionUtil.lookupMethod(Architecture.class, "getFeatures");

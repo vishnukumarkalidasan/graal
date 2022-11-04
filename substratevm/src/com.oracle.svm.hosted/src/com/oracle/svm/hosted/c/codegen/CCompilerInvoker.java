@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.graalvm.compiler.core.riscv64.RISCV64ReflectionUtil;
+import org.graalvm.compiler.core.riscv64.ShadowedRISCV64;
 import org.graalvm.compiler.serviceprovider.JavaVersionUtil;
 import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.nativeimage.Platform;
@@ -440,7 +441,7 @@ public abstract class CCompilerInvoker {
             case "arm64": /* Darwin notation */
                 return AArch64.class;
             case "riscv64":
-                return (Class<? extends Architecture>) RISCV64ReflectionUtil.getArch(false);
+                return (Class<? extends Architecture>) ShadowedRISCV64.riscv64;
             case "i686":
             case "80x86": /* Windows notation */
             case "x86":
