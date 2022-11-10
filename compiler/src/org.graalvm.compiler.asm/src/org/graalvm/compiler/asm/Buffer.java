@@ -61,6 +61,13 @@ final class Buffer {
      * @return the data in this buffer or a trimmed copy if {@code trimmedCopy} is {@code true}
      */
     public byte[] close(boolean trimmedCopy) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of emitcode machine");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         byte[] result = data.array();
         if (trimmedCopy) {
             // Make a copy even if result.length == data.position() since

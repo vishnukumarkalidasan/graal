@@ -93,6 +93,7 @@ public class RuntimeCodeInstaller {
     }
 
     public static void install(SharedRuntimeMethod method, CompilationResult compilation, SubstrateInstalledCode installedCode, boolean testTrampolineJumps) {
+        System.out.println("vishnu debug: runtimeCodeInstaller::install == " + method.getName());
         new RuntimeCodeInstaller(method, compilation, testTrampolineJumps).doInstall(installedCode);
     }
 

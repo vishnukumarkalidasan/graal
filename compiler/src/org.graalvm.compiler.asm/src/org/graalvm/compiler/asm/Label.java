@@ -73,6 +73,16 @@ public final class Label {
      * {@link #addPatchAt(int, Assembler)}.
      */
     protected void bind(int pos, Assembler asm) {
+        /*
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("********************* Displaying Stack trace of bind  ");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
+
+         */
         if (pos < 0) {
             throw new GraalError("Cannot bind label to negative position %d", pos);
         }

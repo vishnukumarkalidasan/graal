@@ -120,7 +120,7 @@ public abstract class Assembler {
 
     public final int getByte(int pos) {
         return codeBuffer.getByte(pos);
-    }
+    } // get the byte from byte array
 
     public final int getShort(int pos) {
         return codeBuffer.getShort(pos);

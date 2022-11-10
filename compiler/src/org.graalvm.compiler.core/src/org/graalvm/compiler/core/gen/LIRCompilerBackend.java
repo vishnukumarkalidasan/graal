@@ -200,6 +200,13 @@ public class LIRCompilerBackend {
                     ResolvedJavaMethod installedCodeOwner,
                     CompilationResultBuilderFactory factory) {
         DebugContext debug = lirGenRes.getLIR().getDebug();
+//        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//        System.out.println("Displaying Stack trace of emitcode");
+//        for(StackTraceElement st : stackTrace)
+//        {
+//            // print the stack trace
+//            System.out.println(st);
+//        }
         try (DebugCloseable a = EmitCode.start(debug)) {
             LIRGenerationProvider lirBackend = (LIRGenerationProvider) backend;
 

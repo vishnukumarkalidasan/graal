@@ -63,6 +63,13 @@ public enum AMD64Arithmetic {
 
         @Override
         public void emitCode(CompilationResultBuilder crb, AMD64MacroAssembler masm) {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("Displaying Stack trace of emitcode machine");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
             AMD64Address tmp = new AMD64Address(AMD64.rsp);
             masm.subq(AMD64.rsp, 8);
             if (opcode == FREM) {

@@ -482,6 +482,7 @@ public class CompilationResult {
      * @param size the size of the machine code
      */
     public void setTargetCode(byte[] code, int size) {
+	System.out.println("Vishnu Debug: setTargetCode......");
         checkOpen();
         targetCode = code;
         targetCodeSize = size;
@@ -632,6 +633,7 @@ public class CompilationResult {
      * @return the machine code generated for this method
      */
     public byte[] getTargetCode() {
+	System.out.println("Vishnu Debug: getTargetCode......");
         return targetCode;
     }
 

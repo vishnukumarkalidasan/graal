@@ -91,7 +91,14 @@ public class AMD64HotSpotBackendFactory extends HotSpotBackendFactory {
     @SuppressWarnings("try")
     public HotSpotBackend createBackend(HotSpotGraalRuntimeProvider graalRuntime, CompilerConfiguration compilerConfiguration, HotSpotJVMCIRuntime jvmciRuntime, HotSpotBackend host) {
         assert host == null;
-
+	System.out.println("**Vishnu creating backend... for amd64");
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("Displaying Stack trace of emitcode machine");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
         OptionValues options = graalRuntime.getOptions();
         JVMCIBackend jvmci = jvmciRuntime.getHostJVMCIBackend();
         GraalHotSpotVMConfig config = graalRuntime.getVMConfig();
