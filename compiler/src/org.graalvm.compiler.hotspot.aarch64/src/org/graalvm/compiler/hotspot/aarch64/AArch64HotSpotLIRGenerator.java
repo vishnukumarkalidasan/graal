@@ -116,6 +116,14 @@ public class AArch64HotSpotLIRGenerator extends AArch64LIRGenerator implements H
 
     protected AArch64HotSpotLIRGenerator(HotSpotProviders providers, GraalHotSpotVMConfig config, LIRGenerationResult lirGenRes) {
         this(new AArch64LIRKindTool(), new AArch64ArithmeticLIRGenerator(null), new AArch64HotSpotMoveFactory(), providers, config, lirGenRes);
+        System.out.println("AArch64 LIR generator created...");
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of AArch64HotSpotLIRGenerator");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
     }
 
     protected AArch64HotSpotLIRGenerator(LIRKindTool lirKindTool, AArch64ArithmeticLIRGenerator arithmeticLIRGen, MoveFactory moveFactory, HotSpotProviders providers, GraalHotSpotVMConfig config,

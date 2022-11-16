@@ -308,7 +308,14 @@ public class AMD64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implemen
     @Override
     public Variable emitAdd(LIRKind resultKind, Value a, Value b, boolean setFlags) {
         boolean isAvx = supportAVX();
-	System.err.println("vishnu: emitAdd");
+	System.out.println("***********************vishnu: emitAdd");
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of amd64 emitAdd");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         switch ((AMD64Kind) a.getPlatformKind()) {
             case DWORD:
                 if (isJavaConstant(b) && !setFlags) {

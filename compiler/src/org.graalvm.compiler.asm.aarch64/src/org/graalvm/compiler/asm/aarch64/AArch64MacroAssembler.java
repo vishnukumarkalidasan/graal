@@ -325,6 +325,13 @@ public class AArch64MacroAssembler extends AArch64Assembler {
      *            the index register is scaled. Can be 1, 2, 4 or 8.
      */
     public void loadAddress(Register dst, AArch64Address address, int transferSize) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("********************* Displaying Stack trace for loadAddress..");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         assert transferSize == 1 || transferSize == 2 || transferSize == 4 || transferSize == 8;
         assert dst.getRegisterCategory().equals(CPU);
         int shiftAmt = NumUtil.log2Ceil(transferSize);

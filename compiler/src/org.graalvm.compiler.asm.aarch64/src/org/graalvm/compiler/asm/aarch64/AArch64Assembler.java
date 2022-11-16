@@ -868,6 +868,14 @@ public abstract class AArch64Assembler extends Assembler {
 
     public AArch64Assembler(TargetDescription target) {
         super(target);
+        System.err.println("vishnu debug aarch64 assembler init");
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of aarch64 assembler init");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
     }
 
     public boolean supports(CPUFeature feature) {

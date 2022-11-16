@@ -119,7 +119,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
     private final String compilerConfigurationName;
     private final HotSpotBackend hostBackend;
 
-    private HotSpotBackend hostBackend2 = null;
+    private HotSpotBackend guestBackend = null;
 
     public GlobalMetrics getMetricValues() {
         return metricValues;
@@ -198,13 +198,13 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         Architecture guestArchitecture = guestJvmciBackend.getTarget().arch;
 
             // creating backend for arm aarch64
-        try (InitTimer t = timer("create backend2:", guestArchitecture)) {
+        try (InitTimer t = timer("create guest backend:", guestArchitecture)) {
             HotSpotBackendFactory factory = backendMap.getBackendFactory(guestArchitecture);
             if (factory == null) {
                 throw new GraalError("No backend available for host architecture \"%s\"", guestArchitecture);
             }
             System.out.println("backend available for host architecture \"%s\" " + guestArchitecture);
-            hostBackend2 = registerBackend(factory.createBackend(this, compilerConfiguration, jvmciRuntime, null));
+            guestBackend = registerBackend(factory.createBackend(this, compilerConfiguration, jvmciRuntime, null));
         }
 
         for (JVMCIBackend jvmciBackend : jvmciRuntime.getJVMCIBackends().values()) {
@@ -230,9 +230,9 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         }
 
         // Complete initialization of AARCH64 backend
-            try (InitTimer st = timer(hostBackend2.getTarget().arch.getName(), ".completeInitialization")) {
-                hostBackend2.completeInitialization(jvmciRuntime, options);
-                System.out.println("initiated backend initialization complete for \"%s\" " + hostBackend2.getTarget().arch.getName());
+            try (InitTimer st = timer(guestBackend.getTarget().arch.getName(), ".completeInitialization")) {
+                guestBackend.completeInitialization(jvmciRuntime, options);
+                System.out.println("initiated backend initialization complete for \"%s\" " + guestBackend.getTarget().arch.getName());
             }
 
 
@@ -317,6 +317,11 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
     }
 
     @Override
+    public HotSpotProviders getGuestProviders() {
+        return getGuestBackend().getProviders();
+    }
+
+    @Override
     public GraalHotSpotVMConfig getVMConfig() {
         return config;
     }
@@ -394,6 +399,10 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
     @Override
     public HotSpotBackend getHostBackend() {
         return hostBackend;
+    }
+    @Override
+    public HotSpotBackend getGuestBackend() {
+        return guestBackend;
     }
 
     @Override

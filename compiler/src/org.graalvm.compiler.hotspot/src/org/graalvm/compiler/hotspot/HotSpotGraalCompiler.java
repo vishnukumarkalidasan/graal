@@ -87,7 +87,7 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
 
     HotSpotGraalCompiler(HotSpotJVMCIRuntime jvmciRuntime, HotSpotGraalRuntimeProvider graalRuntime, OptionValues options) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        System.out.println("Displaying Stack trace of Backend");
+        System.out.println("**** Displaying Stack trace of HotSpotGraalCompiler***");
         for(StackTraceElement st : stackTrace)
         {
             // print the stack trace
@@ -215,12 +215,26 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
         assert options == graph.getOptions();
         HotSpotBackend backend = graalRuntime.getHostBackend();
         HotSpotProviders providers = backend.getProviders();
+
+        //guest backend implementation
+        HotSpotBackend gBackend = graalRuntime.getGuestBackend();
+        HotSpotProviders gProviders = gBackend.getProviders();
+
         final boolean isOSR = entryBCI != JVMCICompiler.INVOCATION_ENTRY_BCI;
 
         Suites suites = getSuites(providers, options);
         LIRSuites lirSuites = getLIRSuites(providers, options);
         ProfilingInfo profilingInfo = useProfilingInfo ? method.getProfilingInfo(!isOSR, isOSR) : DefaultProfilingInfo.get(TriState.FALSE);
         OptimisticOptimizations optimisticOpts = getOptimisticOpts(profilingInfo, options);
+
+        /*********************
+        ** get guest LIR suits **
+         *********************/
+
+        Suites gSuites = getSuites(gProviders, options);
+        LIRSuites gLirSuites = getLIRSuites(gProviders, options);
+        //ProfilingInfo profilingInfo = useProfilingInfo ? method.getProfilingInfo(!isOSR, isOSR) : DefaultProfilingInfo.get(TriState.FALSE);
+        //OptimisticOptimizations optimisticOpts = getOptimisticOpts(profilingInfo, options);
 
         /*
          * Cut off never executed code profiles if there is code, e.g. after the osr loop, that is
@@ -234,6 +248,15 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
         boolean shouldDebugNonSafepoints = providers.getCodeCache().shouldDebugNonSafepoints();
         PhaseSuite<HighTierContext> graphBuilderSuite = configGraphBuilderSuite(providers.getSuites().getDefaultGraphBuilderSuite(), shouldDebugNonSafepoints, shouldRetainLocalVariables, isOSR);
         GraalCompiler.compileGraph(graph, method, providers, backend, graphBuilderSuite, optimisticOpts, profilingInfo, suites, lirSuites, result, crbf, true);
+
+        /*********************************
+         * compiling graph for AArch64 ***
+         *********************************/
+
+        boolean gshouldDebugNonSafepoints = gProviders.getCodeCache().shouldDebugNonSafepoints();
+        PhaseSuite<HighTierContext> ggraphBuilderSuite = configGraphBuilderSuite(gProviders.getSuites().getDefaultGraphBuilderSuite(), gshouldDebugNonSafepoints, shouldRetainLocalVariables, isOSR);
+        System.out.println("compiling the graph again for aarch64");
+        GraalCompiler.compileGraph(graph, method, gProviders, gBackend, ggraphBuilderSuite, optimisticOpts, profilingInfo, suites, lirSuites, result, crbf, true);
 
         if (!isOSR && useProfilingInfo) {
             ProfilingInfo profile = profilingInfo;

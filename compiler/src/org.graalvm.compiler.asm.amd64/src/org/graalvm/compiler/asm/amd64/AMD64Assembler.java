@@ -122,6 +122,13 @@ public class AMD64Assembler extends AMD64BaseAssembler {
 
     public AMD64Assembler(TargetDescription target) {
         super(target);
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("********************* Displaying Stack trace for AMD64Assembler");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         useBranchesWithin32ByteBoundary = false;
     }
 

@@ -53,6 +53,8 @@ public interface HotSpotGraalRuntimeProvider extends GraalRuntime, RuntimeProvid
 
     HotSpotProviders getHostProviders();
 
+    HotSpotProviders getGuestProviders();
+
     @Override
     default String getName() {
         return getClass().getSimpleName();
@@ -62,6 +64,9 @@ public interface HotSpotGraalRuntimeProvider extends GraalRuntime, RuntimeProvid
 
     @Override
     HotSpotBackend getHostBackend();
+
+    @Override
+    HotSpotBackend getGuestBackend();
 
     GraalHotSpotVMConfig getVMConfig();
 

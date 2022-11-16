@@ -67,13 +67,13 @@ public abstract class Backend implements TargetProvider, ValueKindFactory<LIRKin
     public static final ForeignCallDescriptor ARITHMETIC_DREM = new ForeignCallDescriptor("arithmeticDrem", double.class, double.class, double.class);
 
     protected Backend(Providers providers) {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        System.out.println("Displaying Stack trace of Backend");
-        for(StackTraceElement st : stackTrace)
-        {
-            // print the stack trace
-            System.out.println(st);
-        }	
+//        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of Backend()");
+//        for(StackTraceElement st : stackTrace)
+//        {
+//            // print the stack trace
+//            System.out.println(st);
+//        }
         this.providers = providers;
         this.codeInstallationTaskFactories = new ArrayList<>();
     }
@@ -172,7 +172,7 @@ public abstract class Backend implements TargetProvider, ValueKindFactory<LIRKin
      * @return a reference to the compiled and ready-to-run installed code
      * @throws BailoutException if the code installation failed
      * @throws IllegalArgumentException if {@code installedCode != null} and this platform does not
-     *             {@linkplain CodeCacheProvider#installCode support} a predefined
+     *             {@linkplain CodeCacheProvider#x support} a predefined
      *             {@link InstalledCode} object
      */
     @SuppressWarnings("try")
@@ -199,6 +199,13 @@ public abstract class Backend implements TargetProvider, ValueKindFactory<LIRKin
                 preCodeInstallationTasks(tasks, compilationResult);
                 CompiledCode compiledCode = createCompiledCode(method, compilationRequest, compilationResult, isDefault, debug.getOptions());
                 System.err.println("vishnu: Install method " + method.getName() + " to code cache");
+//                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//                System.out.println("********************* Displaying Stack trace for installcode");
+//                for(StackTraceElement st : stackTrace)
+//                {
+//                    // print the stack trace
+//                    System.out.println(st);
+//                }
                 installedCode = getProviders().getCodeCache().installCode(method, compiledCode, predefinedInstalledCode, compilationResult.getSpeculationLog(), isDefault);
                 assert predefinedInstalledCode == null || installedCode == predefinedInstalledCode;
             } catch (Throwable t) {

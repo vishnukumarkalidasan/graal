@@ -92,7 +92,15 @@ public class AArch64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implem
     protected Variable emitAdd(LIRKind resultKind, Value a, Value b, boolean setFlags) {
 	if (isNumericInteger(a.getPlatformKind())) {
             AArch64ArithmeticOp op = setFlags ? AArch64ArithmeticOp.ADDS : AArch64ArithmeticOp.ADD;
-	    System.err.println("vishnu debug emitAdd");
+	    System.err.println("vishnu debug aarch64 emitAdd");
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of aarch64 emitAdd");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
+
             return emitBinary(resultKind, op, true, a, b);
         } else {
             assert !setFlags : "Cannot set flags on floating point arithmetic";
@@ -102,6 +110,14 @@ public class AArch64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implem
 
     @Override
     protected Variable emitSub(LIRKind resultKind, Value a, Value b, boolean setFlags) {
+        System.err.println("vishnu debug aarch64 emitSub");
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of aarch64 emitSub");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         if (isNumericInteger(a.getPlatformKind())) {
             AArch64ArithmeticOp op = setFlags ? AArch64ArithmeticOp.SUBS : AArch64ArithmeticOp.SUB;
             return emitBinary(resultKind, op, false, a, b);

@@ -107,26 +107,26 @@ final class Buffer {
     }
 
     public void emitBytes(byte[] arr, int off, int len) {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        System.out.println("************Displaying Stack trace of emit bytes");
-        for(StackTraceElement st : stackTrace)
-        {
-            // print the stack trace
-            System.out.println(st);
-        }
+//        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//        System.out.println("************Displaying Stack trace of emit bytes");
+//        for(StackTraceElement st : stackTrace)
+//        {
+//            // print the stack trace
+//            System.out.println(st);
+//        }
         ensureSize(data.position() + len);
         data.put(arr, off, len);
     }
 
     public void emitByte(int b) {
         assert NumUtil.isUByte(b) || NumUtil.isByte(b);
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        System.out.println("***********Displaying Stack trace of emitByte(int b)");
-        for(StackTraceElement st : stackTrace)
-        {
-            // print the stack trace
-            System.out.println(st);
-        }
+//        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//        System.out.println("***********Displaying Stack trace of emitByte(int b)");
+//        for(StackTraceElement st : stackTrace)
+//        {
+//            // print the stack trace
+//            System.out.println(st);
+//        }
         ensureSize(data.position() + 1);
         data.put((byte) (b & 0xFF));
     }
