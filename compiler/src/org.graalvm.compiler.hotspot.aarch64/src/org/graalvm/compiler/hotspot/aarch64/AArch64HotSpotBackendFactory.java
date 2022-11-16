@@ -101,7 +101,7 @@ public class AArch64HotSpotBackendFactory extends HotSpotBackendFactory {
         assert host == null;
 
         OptionValues options = graalRuntime.getOptions();
-        JVMCIBackend jvmci = jvmciRuntime.getHostJVMCIBackend();
+        JVMCIBackend jvmci = jvmciRuntime.getGuestJVMCIBackend();
         GraalHotSpotVMConfig config = graalRuntime.getVMConfig();
         HotSpotProviders providers;
         HotSpotRegistersProvider registers;

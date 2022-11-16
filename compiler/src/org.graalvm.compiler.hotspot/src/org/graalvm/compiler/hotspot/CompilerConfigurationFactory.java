@@ -223,6 +223,7 @@ public abstract class CompilerConfigurationFactory implements Comparable<Compile
         assert factory != null;
 
         ShowConfigurationLevel level = Options.ShowConfiguration.getValue(options);
+	level = ShowConfigurationLevel.verbose;
         if (level != ShowConfigurationLevel.none) {
             switch (level) {
                 case info: {

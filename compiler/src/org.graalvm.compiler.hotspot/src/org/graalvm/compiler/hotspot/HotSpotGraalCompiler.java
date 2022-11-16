@@ -86,6 +86,13 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
     private List<DebugHandlersFactory> factories;
 
     HotSpotGraalCompiler(HotSpotJVMCIRuntime jvmciRuntime, HotSpotGraalRuntimeProvider graalRuntime, OptionValues options) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of Backend");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         this.jvmciRuntime = jvmciRuntime;
         this.graalRuntime = graalRuntime;
         // It is sufficient to have one compilation counter object per compiler object.

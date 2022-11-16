@@ -119,6 +119,8 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
     private final String compilerConfigurationName;
     private final HotSpotBackend hostBackend;
 
+    private HotSpotBackend hostBackend2 = null;
+
     public GlobalMetrics getMetricValues() {
         return metricValues;
     }
@@ -192,8 +194,21 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
             hostBackend = registerBackend(factory.createBackend(this, compilerConfiguration, jvmciRuntime, null));
         }
 
+        JVMCIBackend guestJvmciBackend = jvmciRuntime.getGuestJVMCIBackend();
+        Architecture guestArchitecture = guestJvmciBackend.getTarget().arch;
+
+            // creating backend for arm aarch64
+        try (InitTimer t = timer("create backend2:", guestArchitecture)) {
+            HotSpotBackendFactory factory = backendMap.getBackendFactory(guestArchitecture);
+            if (factory == null) {
+                throw new GraalError("No backend available for host architecture \"%s\"", guestArchitecture);
+            }
+            System.out.println("backend available for host architecture \"%s\" " + guestArchitecture);
+            hostBackend2 = registerBackend(factory.createBackend(this, compilerConfiguration, jvmciRuntime, null));
+        }
+
         for (JVMCIBackend jvmciBackend : jvmciRuntime.getJVMCIBackends().values()) {
-            if (jvmciBackend == hostJvmciBackend) {
+            if (jvmciBackend == hostJvmciBackend || jvmciBackend == guestJvmciBackend) {
                 continue;
             }
 
@@ -202,6 +217,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
             if (factory == null) {
                 throw new GraalError("No backend available for specified GPU architecture \"%s\"", gpuArchitecture);
             }
+            System.out.println("backend available for GPU architecture \"%s\" " +  gpuArchitecture);
             try (InitTimer t = timer("create backend:", gpuArchitecture)) {
                 registerBackend(factory.createBackend(this, compilerConfiguration, null, hostBackend));
             }
@@ -210,14 +226,26 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         // Complete initialization of backends
         try (InitTimer st = timer(hostBackend.getTarget().arch.getName(), ".completeInitialization")) {
             hostBackend.completeInitialization(jvmciRuntime, options);
+            System.out.println("initiated backend initialization complete for \"%s\" " + hostBackend.getTarget().arch.getName());
         }
+
+        // Complete initialization of AARCH64 backend
+            try (InitTimer st = timer(hostBackend2.getTarget().arch.getName(), ".completeInitialization")) {
+                hostBackend2.completeInitialization(jvmciRuntime, options);
+                System.out.println("initiated backend initialization complete for \"%s\" " + hostBackend2.getTarget().arch.getName());
+            }
+
+
         for (HotSpotBackend backend : backends.getValues()) {
             if (backend != hostBackend) {
                 try (InitTimer st = timer(backend.getTarget().arch.getName(), ".completeInitialization")) {
                     backend.completeInitialization(jvmciRuntime, options);
+                    System.out.println("backend initialization complete for \"%s\" " + backend.getTarget().arch.getName());
                 }
             }
         }
+
+
 
         BenchmarkCounters.initialize(jvmciRuntime, options);
 
@@ -277,6 +305,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
 
     private HotSpotBackend registerBackend(HotSpotBackend backend) {
         Class<? extends Architecture> arch = backend.getTarget().arch.getClass();
+        System.out.println("registerBackend : registering backend for arch "+backend.getTarget().arch.getName());
         HotSpotBackend oldValue = backends.put(arch, backend);
         assert oldValue == null : "cannot overwrite existing backend for architecture " + arch.getSimpleName();
         return backend;
