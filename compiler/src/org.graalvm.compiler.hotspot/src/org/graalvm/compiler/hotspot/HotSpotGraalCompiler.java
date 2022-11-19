@@ -205,20 +205,22 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
         return graph;
     }
 
-    public CompilationResult compileHelper(CompilationResultBuilderFactory crbf, CompilationResult result, StructuredGraph graph, ResolvedJavaMethod method, int entryBCI, boolean useProfilingInfo,
+    public CompilationResult compileHelper(CompilationResultBuilderFactory crbf, CompilationResult result, CompilationResult gresult, StructuredGraph graph, StructuredGraph guestGraph, ResolvedJavaMethod method, int entryBCI, boolean useProfilingInfo,
                     OptionValues options) {
-        return compileHelper(crbf, result, graph, method, entryBCI, useProfilingInfo, false, options);
+        return compileHelper(crbf, result, gresult, graph, guestGraph, method, entryBCI, useProfilingInfo, false, options);
     }
 
-    public CompilationResult compileHelper(CompilationResultBuilderFactory crbf, CompilationResult result, StructuredGraph graph, ResolvedJavaMethod method, int entryBCI, boolean useProfilingInfo,
+    public CompilationResult compileHelper(CompilationResultBuilderFactory crbf, CompilationResult result, CompilationResult gresult, StructuredGraph graph, StructuredGraph guestGraph, ResolvedJavaMethod method, int entryBCI, boolean useProfilingInfo,
                     boolean shouldRetainLocalVariables, OptionValues options) {
         assert options == graph.getOptions();
+        assert options == guestGraph.getOptions();
         HotSpotBackend backend = graalRuntime.getHostBackend();
         HotSpotProviders providers = backend.getProviders();
 
         //guest backend implementation
         HotSpotBackend gBackend = graalRuntime.getGuestBackend();
         HotSpotProviders gProviders = gBackend.getProviders();
+        System.out.println("received backend for \"%s\"  " + gBackend.getTarget().arch.getName() + "\n \n \n");
 
         final boolean isOSR = entryBCI != JVMCICompiler.INVOCATION_ENTRY_BCI;
 
@@ -233,8 +235,8 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
 
         Suites gSuites = getSuites(gProviders, options);
         LIRSuites gLirSuites = getLIRSuites(gProviders, options);
-        //ProfilingInfo profilingInfo = useProfilingInfo ? method.getProfilingInfo(!isOSR, isOSR) : DefaultProfilingInfo.get(TriState.FALSE);
-        //OptimisticOptimizations optimisticOpts = getOptimisticOpts(profilingInfo, options);
+        ProfilingInfo gProfilingInfo = useProfilingInfo ? method.getProfilingInfo(!isOSR, isOSR) : DefaultProfilingInfo.get(TriState.FALSE);
+        OptimisticOptimizations goptimisticOpts = getOptimisticOpts(gProfilingInfo, options);
 
         /*
          * Cut off never executed code profiles if there is code, e.g. after the osr loop, that is
@@ -242,6 +244,14 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
          */
         if (isOSR && !OnStackReplacementPhase.Options.DeoptAfterOSR.getValue(options)) {
             optimisticOpts.remove(Optimization.RemoveNeverExecutedCode);
+        }
+
+        /*
+         * Cut off never executed code profiles if there is code, e.g. after the osr loop, that is
+         * never executed.
+         */
+        if (isOSR && !OnStackReplacementPhase.Options.DeoptAfterOSR.getValue(options)) {
+            goptimisticOpts.remove(Optimization.RemoveNeverExecutedCode);
         }
 
         result.setEntryBCI(entryBCI);
@@ -252,16 +262,21 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
         /*********************************
          * compiling graph for AArch64 ***
          *********************************/
-
+        gresult.setEntryBCI(entryBCI);
         boolean gshouldDebugNonSafepoints = gProviders.getCodeCache().shouldDebugNonSafepoints();
         PhaseSuite<HighTierContext> ggraphBuilderSuite = configGraphBuilderSuite(gProviders.getSuites().getDefaultGraphBuilderSuite(), gshouldDebugNonSafepoints, shouldRetainLocalVariables, isOSR);
-        System.out.println("compiling the graph again for aarch64");
-        GraalCompiler.compileGraph(graph, method, gProviders, gBackend, ggraphBuilderSuite, optimisticOpts, profilingInfo, suites, lirSuites, result, crbf, true);
+        System.out.println("compiling the graph again for aarch64 == "+gBackend.getTarget().arch);
+        graalRuntime.setGuestCompilation(true);
+        GraalCompiler.compileGraph(guestGraph, method, gProviders, gBackend, ggraphBuilderSuite, goptimisticOpts, gProfilingInfo, gSuites, gLirSuites, gresult, crbf, true);
 
         if (!isOSR && useProfilingInfo) {
             ProfilingInfo profile = profilingInfo;
             profile.setCompilerIRSize(StructuredGraph.class, graph.getNodeCount());
+
+            ProfilingInfo gprofile = gProfilingInfo;
+            gprofile.setCompilerIRSize(StructuredGraph.class, guestGraph.getNodeCount());
         }
+        System.out.println("received backend for \"%s\"  " + gBackend.getTarget().arch.getName() + "\n \n \n");
 	System.err.println("vishnu: " + method.getName() + " machine code: " /*+ Arrays.toString(result.getTargetCode())*/);
 
         return result;
@@ -274,8 +289,10 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
                     CompilationIdentifier compilationId,
                     DebugContext debug) {
         StructuredGraph graph = createGraph(method, entryBCI, useProfilingInfo, compilationId, debug.getOptions(), debug);
+        StructuredGraph guestGraph = createGraph(method, entryBCI, useProfilingInfo, compilationId, debug.getOptions(), debug);
         CompilationResult result = new CompilationResult(compilationId);
-        return compileHelper(CompilationResultBuilderFactory.Default, result, graph, method, entryBCI, useProfilingInfo, shouldRetainLocalVariables, debug.getOptions());
+        CompilationResult gresult = new CompilationResult(compilationId);
+        return compileHelper(CompilationResultBuilderFactory.Default, result, gresult, graph, guestGraph, method, entryBCI, useProfilingInfo, shouldRetainLocalVariables, debug.getOptions());
     }
 
     protected OptimisticOptimizations getOptimisticOpts(ProfilingInfo profilingInfo, OptionValues options) {

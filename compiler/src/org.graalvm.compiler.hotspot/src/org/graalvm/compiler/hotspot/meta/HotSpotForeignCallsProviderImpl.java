@@ -211,7 +211,11 @@ public abstract class HotSpotForeignCallsProviderImpl implements HotSpotForeignC
         if (callTarget == null) {
             throw GraalError.shouldNotReachHere("missing implementation for runtime call: " + descriptor);
         }
-        callTarget.finalizeAddress(runtime.getHostBackend());
+	if (runtime.isGuestCompilation()) {
+        	callTarget.finalizeAddress(runtime.getGuestBackend());
+	} else {
+		callTarget.finalizeAddress(runtime.getHostBackend());
+	}
         return callTarget;
     }
 

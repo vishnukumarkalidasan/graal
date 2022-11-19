@@ -39,8 +39,16 @@ final class Buffer {
     protected ByteBuffer data;
 
     Buffer(ByteOrder order) {
+
         data = ByteBuffer.allocate(AsmOptions.InitialCodeBufferSize);
         data.order(order);
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("************Displaying Stack trace of buffer init");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
     }
 
     public int position() {
@@ -61,13 +69,13 @@ final class Buffer {
      * @return the data in this buffer or a trimmed copy if {@code trimmedCopy} is {@code true}
      */
     public byte[] close(boolean trimmedCopy) {
-        //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         System.out.println("Displaying Stack trace of close machine");
-//        for(StackTraceElement st : stackTrace)
-//        {
-//            // print the stack trace
-//            System.out.println(st);
-//        }
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         byte[] result = data.array();
         if (trimmedCopy) {
             // Make a copy even if result.length == data.position() since
@@ -138,6 +146,13 @@ final class Buffer {
     }
 
     public void emitInt(int b) {
+//                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//        System.out.println("************Displaying Stack trace of emit int");
+//        for(StackTraceElement st : stackTrace)
+//        {
+//            // print the stack trace
+//            System.out.println(st);
+//        }
         ensureSize(data.position() + 4);
         data.putInt(b);
     }

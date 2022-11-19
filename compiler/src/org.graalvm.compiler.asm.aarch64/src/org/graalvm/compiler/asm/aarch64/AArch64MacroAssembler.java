@@ -950,6 +950,13 @@ public class AArch64MacroAssembler extends AArch64Assembler {
      * @param src2 general purpose register. May not be null or stackpointer.
      */
     public void subs(int size, Register dst, Register src1, Register src2) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("***********Displaying Stack trace of subs()");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         if (dst.equals(sp) || src1.equals(sp)) {
             super.subs(size, dst, src1, src2, ExtendType.UXTX, 0);
         } else {
@@ -966,6 +973,13 @@ public class AArch64MacroAssembler extends AArch64Assembler {
      * @param src2 general purpose register. May not be null or stackpointer.
      */
     public void sub(int size, Register dst, Register src1, Register src2) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("***********Displaying Stack trace of sub()");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         if (dst.equals(sp) || src1.equals(sp)) {
             super.sub(size, dst, src1, src2, ExtendType.UXTX, 0);
         } else {
@@ -1001,6 +1015,13 @@ public class AArch64MacroAssembler extends AArch64Assembler {
      */
     @Override
     public void sub(int size, Register dst, Register src1, Register src2, ShiftType shiftType, int shiftAmt) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("***********Displaying Stack trace of simple sub()");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         int shift = clampShiftAmt(size, shiftAmt);
         super.sub(size, dst, src1, src2, shiftType, shift);
     }

@@ -258,6 +258,13 @@ public class AArch64HotSpotBackend extends HotSpotHostBackend implements LIRGene
 
     @Override
     public CompilationResultBuilder newCompilationResultBuilder(LIRGenerationResult lirGenRen, FrameMap frameMap, CompilationResult compilationResult, CompilationResultBuilderFactory factory) {
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("************Displaying Stack trace of newCompilationResultBuilder");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         HotSpotLIRGenerationResult gen = (HotSpotLIRGenerationResult) lirGenRen;
         LIR lir = gen.getLIR();
         assert gen.getDeoptimizationRescueSlot() == null || frameMap.frameNeedsAllocating() : "method that can deoptimize must have a frame";
@@ -286,7 +293,17 @@ public class AArch64HotSpotBackend extends HotSpotHostBackend implements LIRGene
     public void emitCode(CompilationResultBuilder crb, LIR lir, ResolvedJavaMethod installedCodeOwner) {
         Label verifiedStub = new Label();
         crb.buildLabelOffsets(lir);
-        try {
+	
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("************Displaying Stack trace of emitcode");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
+        
+	
+	try {
             emitCode(crb, lir, installedCodeOwner, verifiedStub);
         } catch (BranchTargetOutOfBoundsException e) {
             // A branch estimation was wrong, now retry with conservative label ranges, this
@@ -309,6 +326,14 @@ public class AArch64HotSpotBackend extends HotSpotHostBackend implements LIRGene
     }
 
     private void emitCodePrefix(CompilationResultBuilder crb, ResolvedJavaMethod installedCodeOwner, AArch64MacroAssembler masm, RegisterConfig regConfig, Label verifiedStub) {
+	
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("************Displaying Stack trace of emitcode");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         HotSpotProviders providers = getProviders();
         if (installedCodeOwner != null && !isStatic(installedCodeOwner.getModifiers())) {
             crb.recordMark(config.MARKID_UNVERIFIED_ENTRY);

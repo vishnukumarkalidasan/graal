@@ -1062,10 +1062,26 @@ public final class StructuredGraph extends Graph implements JavaMethodContext {
     }
 
     public boolean hasUnsafeAccess() {
+	    //debug failure point
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("Displaying Stack trace of failurepoint hasUnsafeAccess\n \n \n");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
         return hasUnsafeAccess == UnsafeAccessState.HAS_ACCESS;
     }
 
     public void markUnsafeAccess() {
+	//debug failure point
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("Displaying Stack trace of failurepoint markUnsafeAccess\n \n \n");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
         if (hasUnsafeAccess == UnsafeAccessState.DISABLED) {
             return;
         }

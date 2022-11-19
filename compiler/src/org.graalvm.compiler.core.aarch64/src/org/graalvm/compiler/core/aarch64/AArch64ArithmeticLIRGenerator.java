@@ -110,14 +110,6 @@ public class AArch64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implem
 
     @Override
     protected Variable emitSub(LIRKind resultKind, Value a, Value b, boolean setFlags) {
-        System.err.println("vishnu debug aarch64 emitSub");
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        System.out.println("Displaying Stack trace of aarch64 emitSub");
-        for(StackTraceElement st : stackTrace)
-        {
-            // print the stack trace
-            System.out.println(st);
-        }
         if (isNumericInteger(a.getPlatformKind())) {
             AArch64ArithmeticOp op = setFlags ? AArch64ArithmeticOp.SUBS : AArch64ArithmeticOp.SUB;
             return emitBinary(resultKind, op, false, a, b);
@@ -375,11 +367,19 @@ public class AArch64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implem
     private void emitBinaryVar(Variable result, AArch64ArithmeticOp op, AllocatableValue a, AllocatableValue b) {
         AllocatableValue x = moveSp(a);
         AllocatableValue y = moveSp(b);
+//        System.err.println("vishnu debug aarch64 emitBinaryVar");
+//        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//        System.out.println("Displaying Stack trace of aarch64 emitBinaryVar");
+//        for(StackTraceElement st : stackTrace)
+//        {
+//            // print the stack trace
+//            System.out.println(st);
+//        }
         switch (op) {
             case FREM:
             case REM:
             case UREM:
-                getLIRGen().append(new AArch64ArithmeticOp.BinaryCompositeOp(op, result, x, y));
+                    getLIRGen().append(new AArch64ArithmeticOp.BinaryCompositeOp(op, result, x, y));
                 break;
             default:
                 getLIRGen().append(new AArch64ArithmeticOp.BinaryOp(op, result, x, y));
@@ -388,6 +388,14 @@ public class AArch64ArithmeticLIRGenerator extends ArithmeticLIRGenerator implem
     }
 
     private void emitBinaryConst(Variable result, AArch64ArithmeticOp op, AllocatableValue a, JavaConstant b) {
+        System.err.println("vishnu debug aarch64 emitBinaryConst");
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of aarch64 emitBinaryConst");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         AllocatableValue x = moveSp(a);
         getLIRGen().append(new AArch64ArithmeticOp.BinaryConstOp(op, result, x, b));
     }

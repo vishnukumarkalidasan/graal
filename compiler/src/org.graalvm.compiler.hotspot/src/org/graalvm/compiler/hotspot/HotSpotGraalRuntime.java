@@ -125,6 +125,8 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         return metricValues;
     }
 
+    public boolean isGuest = false;
+
     private final GlobalMetrics metricValues = new GlobalMetrics();
     private final List<SnippetCounter.Group> snippetCounterGroups;
     private final HotSpotGC garbageCollector;
@@ -237,7 +239,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
 
 
         for (HotSpotBackend backend : backends.getValues()) {
-            if (backend != hostBackend) {
+            if (backend != hostBackend && backend != guestBackend) {
                 try (InitTimer st = timer(backend.getTarget().arch.getName(), ".completeInitialization")) {
                     backend.completeInitialization(jvmciRuntime, options);
                     System.out.println("backend initialization complete for \"%s\" " + backend.getTarget().arch.getName());
@@ -416,6 +418,15 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         return compilerConfigurationName;
     }
 
+    //indicate guest mode compilation
+    @Override
+    public boolean isGuestCompilation(){
+        return isGuest;
+    }
+    @Override
+    public void setGuestCompilation(boolean val){
+        isGuest = val;
+    }
     private long runtimeStartTime;
 
     /**

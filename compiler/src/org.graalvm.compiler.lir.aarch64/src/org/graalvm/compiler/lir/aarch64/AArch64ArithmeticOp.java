@@ -182,11 +182,26 @@ public enum AArch64ArithmeticOp {
             this.result = result;
             this.a = a;
             this.b = b;
+	    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("***********Displaying Stack trace of BinaryConstOp init");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
         }
 
         @Override
         public void emitCode(CompilationResultBuilder crb, AArch64MacroAssembler masm) {
             assert op.category != NONE;
+	    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("***********Displaying Stack trace of BinaryConstOp emitCode()");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
+
             Register dst = asRegister(result);
             Register src = asRegister(a);
             int size = result.getPlatformKind().getSizeInBytes() * Byte.SIZE;
@@ -260,11 +275,27 @@ public enum AArch64ArithmeticOp {
             this.result = result;
             this.a = a;
             this.b = b;
+//	    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//            System.out.println("***********Displaying Stack trace of BinaryOp init()");
+//            for(StackTraceElement st : stackTrace)
+//            {
+//                // print the stack trace
+//                System.out.println(st);
+//            }
         }
 
         @Override
         public void emitCode(CompilationResultBuilder crb, AArch64MacroAssembler masm) {
-            Register dst = asRegister(result);
+            
+	    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("***********Displaying Stack trace of BinaryOp emitCode()");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
+
+	    Register dst = asRegister(result);
             Register src1 = asRegister(a);
             Register src2 = asRegister(b);
             int size = result.getPlatformKind().getSizeInBytes() * Byte.SIZE;
@@ -379,6 +410,13 @@ public enum AArch64ArithmeticOp {
             this.result = result;
             this.a = a;
             this.b = b;
+	    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("***********Displaying Stack trace of BinaryCompositeOp init");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
         }
 
         @Override
@@ -386,6 +424,13 @@ public enum AArch64ArithmeticOp {
             Register dst = asRegister(result);
             Register src1 = asRegister(a);
             Register src2 = asRegister(b);
+	    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("***********Displaying Stack trace of BinaryCompositeOp emitCode()");
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
             int size = result.getPlatformKind().getSizeInBytes() * Byte.SIZE;
             switch (op) {
                 case REM:

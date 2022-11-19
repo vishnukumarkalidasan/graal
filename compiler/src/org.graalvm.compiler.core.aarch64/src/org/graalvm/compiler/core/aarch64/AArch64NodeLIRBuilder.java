@@ -37,6 +37,14 @@ public abstract class AArch64NodeLIRBuilder extends NodeLIRBuilder {
 
     public AArch64NodeLIRBuilder(StructuredGraph graph, LIRGeneratorTool lirGen, AArch64NodeMatchRules nodeMatchRules) {
         super(graph, lirGen, nodeMatchRules);
+	//debug failure point
+                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                System.out.println("Displaying Stack trace of failurepoint catch AArch64NodeLIRBuilder\n \n \n");
+                for(StackTraceElement st : stackTrace)
+                {
+                    // print the stack trace
+                    System.out.println(st);
+                }
     }
 
     @Override

@@ -126,6 +126,7 @@ public class GraalCompiler {
     public static <T extends CompilationResult> T compileGraph(StructuredGraph graph, ResolvedJavaMethod installedCodeOwner, Providers providers, Backend backend,
                     PhaseSuite<HighTierContext> graphBuilderSuite, OptimisticOptimizations optimisticOpts, ProfilingInfo profilingInfo, Suites suites, LIRSuites lirSuites, T compilationResult,
                     CompilationResultBuilderFactory factory, boolean verifySourcePositions) {
+        System.out.println("received backend for compileGraph ..... \"%s\"  " + backend.getTarget().arch.getName() + "\n \n \n");
         return compile(new Request<>(graph, installedCodeOwner, providers, backend, graphBuilderSuite, optimisticOpts, profilingInfo, suites, lirSuites, compilationResult, factory,
                         verifySourcePositions));
     }
@@ -142,6 +143,7 @@ public class GraalCompiler {
             assert !r.graph.isFrozen();
             try (DebugContext.Scope s0 = debug.scope("GraalCompiler", r.graph, r.providers.getCodeCache()); DebugCloseable a = CompilerTimer.start(debug)) {
                 emitFrontEnd(r.providers, r.backend, r.graph, r.graphBuilderSuite, r.optimisticOpts, r.profilingInfo, r.suites);
+                System.out.println("received backend for compile before emitbackend ..... \"%s\"  " + r.backend.getTarget().arch.getName() + "\n \n \n");
                 r.backend.emitBackEnd(r.graph, null, r.installedCodeOwner, r.compilationResult, r.factory, null, r.lirSuites);
 		System.out.println("Vishnu compiler machine code generation...");
                 if (r.verifySourcePositions) {

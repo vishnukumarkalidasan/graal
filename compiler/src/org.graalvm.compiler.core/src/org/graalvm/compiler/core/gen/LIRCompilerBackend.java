@@ -80,10 +80,13 @@ public class LIRCompilerBackend {
         DebugContext debug = graph.getDebug();
         try (DebugContext.Scope s = debug.scope("BackEnd", graph.getLastSchedule()); DebugCloseable a = BackEnd.start(debug)) {
             LIRGenerationResult lirGen = null;
+            System.out.println("received backend for emitBackend ..... \"%s\"  " + backend.getTarget().arch.getName() + "\n \n \n");
             lirGen = emitLIR(backend, graph, stub, registerConfig, lirSuites);
+
             try (DebugContext.Scope s2 = debug.scope("CodeGen", lirGen, lirGen.getLIR())) {
                 int bytecodeSize = graph.method() == null ? 0 : graph.getBytecodeSize();
-                compilationResult.setHasUnsafeAccess(graph.hasUnsafeAccess());
+                //graph.disableUnsafeAccessTracking();
+                    compilationResult.setHasUnsafeAccess(graph.hasUnsafeAccess());
                 emitCode(backend,
                                 graph.getAssumptions(),
                                 graph.method(),
@@ -96,9 +99,19 @@ public class LIRCompilerBackend {
                                 installedCodeOwner,
                                 factory);
             } catch (Throwable e) {
+
                 throw debug.handle(e);
             }
         } catch (Throwable e) {
+            //debug failure point
+//            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("Displaying Stack trace of failurepoint catch 2\n \n \n");
+//            for(StackTraceElement st : stackTrace)
+//            {
+//                // print the stack trace
+//                System.out.println(st);
+//            }
+            e.printStackTrace(System.out);
             throw debug.handle(e);
         } finally {
             graph.checkCancellation();
@@ -158,11 +171,29 @@ public class LIRCompilerBackend {
                 // Dump LIR along with HIR (the LIR is looked up from context)
                 debug.dump(DebugContext.BASIC_LEVEL, graph.getLastSchedule(), "After LIR generation");
                 LIRGenerationResult result = emitLowLevel(backend.getTarget(), lirGenRes, lirGen, lirSuites, registerAllocationConfig);
+
                 return result;
             } catch (Throwable e) {
+                //debug failure point
+                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                System.out.println("Displaying Stack trace of failurepoint catch 176\n \n \n" + " arch = " + backend.getTarget().arch);
+                for(StackTraceElement st : stackTrace)
+                {
+                    // print the stack trace
+                    System.out.println(st);
+                }
                 throw debug.handle(e);
             }
+
         } catch (Throwable e) {
+            //debug failure point
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            System.out.println("Displaying Stack trace of failurepoint catch 188\n \n \n" + " arch = " + backend.getTarget().arch);
+            for(StackTraceElement st : stackTrace)
+            {
+                // print the stack trace
+                System.out.println(st);
+            }
             throw debug.handle(e);
         } finally {
             graph.checkCancellation();
@@ -200,13 +231,13 @@ public class LIRCompilerBackend {
                     ResolvedJavaMethod installedCodeOwner,
                     CompilationResultBuilderFactory factory) {
         DebugContext debug = lirGenRes.getLIR().getDebug();
-//        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-//        System.out.println("Displaying Stack trace of emitcode");
-//        for(StackTraceElement st : stackTrace)
-//        {
-//            // print the stack trace
-//            System.out.println(st);
-//        }
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of emitcode\n \n \n");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         try (DebugCloseable a = EmitCode.start(debug)) {
             LIRGenerationProvider lirBackend = (LIRGenerationProvider) backend;
 

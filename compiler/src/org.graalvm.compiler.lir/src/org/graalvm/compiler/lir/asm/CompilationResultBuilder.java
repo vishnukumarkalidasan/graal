@@ -551,6 +551,13 @@ public class CompilationResultBuilder {
             if (emitComment) {
                 blockComment(String.format("%d %s", op.id(), op));
             }
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of emitblock for " + String.format("%d %s", op.id(), op));
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
 
             try {
                 if (beforeOp != null) {
@@ -567,6 +574,13 @@ public class CompilationResultBuilder {
     }
 
     private void emitOp(LIRInstruction op) {
+	StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        System.out.println("Displaying Stack trace of emitop");
+        for(StackTraceElement st : stackTrace)
+        {
+            // print the stack trace
+            System.out.println(st);
+        }
         try {
             int start = asm.position();
             op.emitCode(this);

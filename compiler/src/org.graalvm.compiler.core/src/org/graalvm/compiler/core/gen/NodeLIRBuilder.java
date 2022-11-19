@@ -340,6 +340,7 @@ public abstract class NodeLIRBuilder implements NodeLIRBuilderTool, LIRGeneratio
 
             if (block == gen.getResult().getLIR().getControlFlowGraph().getStartBlock()) {
                 assert block.getPredecessorCount() == 0;
+                //TODO: control this specific to AArch64
                 emitPrologue(graph);
             } else {
                 assert block.getPredecessorCount() > 0;
