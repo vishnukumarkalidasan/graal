@@ -268,7 +268,15 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
         System.out.println("compiling the graph again for aarch64 == "+gBackend.getTarget().arch);
         graalRuntime.setGuestCompilation(true);
         GraalCompiler.compileGraph(guestGraph, method, gProviders, gBackend, ggraphBuilderSuite, goptimisticOpts, gProfilingInfo, gSuites, gLirSuites, gresult, crbf, true);
+	
+	System.err.println("vishnu: " + method.getName() + " aarch64 machine code: " + Arrays.toString(gresult.getTargetCode()));
 
+	/**HOST compilation***/
+/*	result.setEntryBCI(entryBCI);
+        boolean shouldDebugNonSafepoints = providers.getCodeCache().shouldDebugNonSafepoints();
+        PhaseSuite<HighTierContext> graphBuilderSuite = configGraphBuilderSuite(providers.getSuites().getDefaultGraphBuilderSuite(), shouldDebugNonSafepoints, shouldRetainLocalVariables, isOSR);
+        GraalCompiler.compileGraph(graph, method, providers, backend, graphBuilderSuite, optimisticOpts, profilingInfo, suites, lirSuites, result, crbf, true);
+*/
         if (!isOSR && useProfilingInfo) {
             ProfilingInfo profile = profilingInfo;
             profile.setCompilerIRSize(StructuredGraph.class, graph.getNodeCount());
@@ -277,7 +285,6 @@ public class HotSpotGraalCompiler implements GraalJVMCICompiler, Cancellable {
             gprofile.setCompilerIRSize(StructuredGraph.class, guestGraph.getNodeCount());
         }
         System.out.println("received backend for \"%s\"  " + gBackend.getTarget().arch.getName() + "\n \n \n");
-	System.err.println("vishnu: " + method.getName() + " machine code: " /*+ Arrays.toString(result.getTargetCode())*/);
 
         return result;
     }

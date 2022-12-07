@@ -35,6 +35,8 @@ import static org.graalvm.util.CollectionsUtil.allMatch;
 
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.io.UnsupportedEncodingException;
 
 import org.graalvm.collections.EconomicSet;
 import org.graalvm.compiler.code.CompilationResult;
@@ -185,6 +187,52 @@ public abstract class Stub {
         return DebugContext.disabled(options);
     }
 
+    //public final class HexDumpUtil {
+    public static String formatHexDump(byte[] array, int offset, int length) {
+        final int width = 16;
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int rowOffset = offset; rowOffset < offset + length; rowOffset += width) {
+            builder.append(String.format("%06d:  ", rowOffset));
+
+            for (int index = 0; index < width; index++) {
+                if (rowOffset + index < array.length) {
+                    builder.append(String.format("%02x ", array[rowOffset + index]));
+                } else {
+                    builder.append("   ");
+                }
+            }
+
+            if (rowOffset < array.length) {
+                int asciiWidth = Math.min(width, array.length - rowOffset);
+                builder.append("  |  ");
+                try {
+                    builder.append(new String(array, rowOffset, asciiWidth, "UTF-8").replaceAll("\r\n", " ").replaceAll("\n", " "));
+                } catch (UnsupportedEncodingException ignored) {
+                    //If UTF-8 isn't available as an encoding then what can we do?!
+                }
+            }
+
+            builder.append(String.format("%n"));
+        }
+
+        return builder.toString();
+    }
+//}
+//private static final byte[] HEX_ARRAY = new byte[]
+//      { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    for (int j = 0; j < bytes.length; j++) {
+        int v = bytes[j] & 0xFF;
+        hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+        hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+    }
+    return new String(hexChars);
+    }
+
     /**
      * Gets the code for this stub, compiling it first if necessary.
      */
@@ -201,6 +249,7 @@ public abstract class Stub {
                         // Add a GeneratePIC check here later, we don't want to install
                         // code if we don't have a corresponding VM global symbol.
                         HotSpotCompiledCode compiledCode = HotSpotCompiledCodeBuilder.createCompiledCode(codeCache, null, null, compResult, options);
+			System.err.println("SSRG DEBUG: "+ backend.getTarget().arch + " machine code from stub: " + bytesToHex(compResult.getTargetCode()/*,0, compResult.getTargetCode().length*/));	
                         code = codeCache.installCode(null, compiledCode, null, null, false);
                     } catch (Throwable e) {
                         throw debug.handle(e);

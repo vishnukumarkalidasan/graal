@@ -540,6 +540,7 @@ public class CompilationResult {
     public void recordExceptionHandler(int codePos, int handlerPos) {
         checkOpen();
         assert validateExceptionHandlerAdd(codePos, handlerPos) : String.format("Duplicate exception handler for pc 0x%x handlerPos 0x%x", codePos, handlerPos);
+	System.out.println("Duplicate exception handler for pc" + codePos + " handler position = " + handlerPos);
         exceptionHandlers.add(new ExceptionHandler(codePos, handlerPos));
     }
 
